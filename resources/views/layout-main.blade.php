@@ -45,7 +45,7 @@
     <body>
 
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand text-center" href="{{ route('home') }}">
+            <a class="navbar-brand text-center" href="{{ route('carteira.home') }}">
                 <img src="{{ asset('assets/name-fundo-transparente-300x40.png') }}"  alt="Logo" width="80%" height="80%">
             </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,7 +55,7 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ route('home') }}">Carteira</a>
+                        <a class="nav-link active" href="{{ route('carteira.home') }}">Carteira</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Ações</a>

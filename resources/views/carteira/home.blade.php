@@ -397,7 +397,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('investimento.acao.store') }}" method="post">
+                <form action="{{ route('carteira.acao.store') }}" method="post">
                     @csrf
                     <div class="modal-body">
                             <div class="row">
@@ -455,7 +455,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('investimento.fundo.store') }}" method="post">
+                <form action="{{ route('carteira.fundo.store') }}" method="post">
                     @csrf
                     <div class="modal-body">
                             <div class="row">
@@ -513,7 +513,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('investimento.cripto.store') }}" method="post">
+                <form action="{{ route('carteira.cripto.store') }}" method="post">
                     @csrf
                     <div class="modal-body">
                             <div class="row">
@@ -588,8 +588,61 @@
                 width: '100%',
             });
 
+            // obter valores para o grafico de entrada
+            axios.get(`{{ route('carteira.obterDados') }}`)
+            .then(function (response) {
+
+                console.log(response.data);
+
+                var xValues = []; // nome
+                var yValues = []; // valor
+                var barColors = [];
+
+                response.data.forEach(element => {
+                    xValues.push(element.nome);
+                    yValues.push(element.valor);
+                    var color = dynamicColors();
+                    barColors.push(color);
+
+                    var tr = `<tr>
+                        <td>` + element.nome + `</td>
+                        <td class="text-end">` + element.valor + `%</td>
+                        <td class="text-end">
+                            <i class="fas fa-square-full fa-lg" style="color: ` + color + `;"></i>
+                        </td>
+                    </tr>`;
+
+                    $("#tbodyEntrada").append(tr);
+                });
+
+                new Chart("entrada-chart", {
+                    type: "doughnut",
+                    data: {
+                        labels: xValues,
+                        datasets: [{
+                            backgroundColor: barColors,
+                            data: yValues,
+                            borderWidth: 5,
+                            borderColor: "#ffffff"
+                        }]
+                    },
+                    options: {
+                        title: {
+                            display: false
+                        },
+                        legend: {
+                            display: false
+                        }
+                    }
+                });
+
+            })
+            .catch(function (error) {
+                console.error(error.data);
+            });
+
             // obter valores para o grafico de ações
-            axios.get(`{{ route('investimento.acao.obterDados') }}`)
+            axios.get(`{{ route('carteira.acao.obterDados') }}`)
             .then(function (response) {
 
                 var xValues = []; // nome
@@ -640,7 +693,7 @@
             });
 
             // obter valores para o grafico de fiis
-            axios.get(`{{ route('investimento.fundo.obterDados') }}`)
+            axios.get(`{{ route('carteira.fundo.obterDados') }}`)
             .then(function (response) {
 
                 var xValues = []; // nome
@@ -691,7 +744,7 @@
             });
 
             // obter valores para o grafico de criptos
-            axios.get(`{{ route('investimento.cripto.obterDados') }}`)
+            axios.get(`{{ route('carteira.cripto.obterDados') }}`)
             .then(function (response) {
 
                 var xValues = []; // nome

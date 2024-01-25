@@ -23,7 +23,7 @@ class LoginController extends Controller
             return redirect()->back()->with('erro', 'Dados incorretos, tente novamente.')->withInput(['email' => $request->email]);
         };
 
-        return redirect()->route('home');
+        return redirect()->route('carteira.home');
 
     }
 

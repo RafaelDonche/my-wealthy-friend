@@ -43,13 +43,14 @@ Route::get('/confirmacao-email/{id}', [ConfirmacaoEmailController::class, 'confi
 
 Route::group(['middleware' => 'auth'], function () {
 
-    // Home
-    Route::get('/home', [HomeController::class, 'index'])->name('home');
-
     // Investimento
-    Route::group(['prefix' => '/investimento', 'as' => 'investimento.'], function() {
+    Route::group(['prefix' => '/carteira', 'as' => 'carteira.'], function() {
 
+        // Home
+        Route::get('/home', [HomeController::class, 'index'])->name('home');
+        Route::get('/obterDados', [HomeController::class, 'obterDados'])->name('obterDados');
 
+        // investimento de ação
         Route::group(['prefix' => '/acao', 'as' => 'acao.'], function() {
             Route::get('/obterDados', [InvestimentoAcaoController::class, 'obterDados'])->name('obterDados');
             Route::post('/store', [InvestimentoAcaoController::class, 'store'])->name('store');
@@ -58,6 +59,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('/destroy/{id}', [InvestimentoAcaoController::class, 'destroy'])->name('destroy');
         });
 
+        // investimento de fundo
         Route::group(['prefix' => '/fundo', 'as' => 'fundo.'], function() {
             Route::get('/obterDados', [InvestimentoFundoController::class, 'obterDados'])->name('obterDados');
             Route::post('/store', [InvestimentoFundoController::class, 'store'])->name('store');
@@ -66,6 +68,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('/destroy/{id}', [InvestimentoFundoController::class, 'destroy'])->name('destroy');
         });
 
+        // investimento de cripto
         Route::group(['prefix' => '/cripto', 'as' => 'cripto.'], function() {
             Route::get('/obterDados', [InvestimentoCriptoController::class, 'obterDados'])->name('obterDados');
             Route::post('/store', [InvestimentoCriptoController::class, 'store'])->name('store');
