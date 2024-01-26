@@ -50,13 +50,14 @@ class InvestimentoFundoController extends Controller
             foreach ($fundos as $f) {
                 $result = new stdClass();
                 $result->nome = $f->ativo_info->sigla;
-                $valor = (($f->valor_unitario*$f->quantidade) / $somaTotal) * 100;
-                $result->valor = number_format($valor, 2);
+                $result->valor = number_format(($f->valor_unitario*$f->quantidade), 2, ',', '.');
+                $porcentagem = (($f->valor_unitario*$f->quantidade) / $somaTotal) * 100;
+                $result->porcentagem = number_format($porcentagem, 2);
 
                 array_push($arrayResult, $result);
             }
 
-            return response()->json($arrayResult);
+            return response()->json(['dados' => $arrayResult, 'total' => number_format($somaTotal, 2, ',', '.')]);
 
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), 500);

@@ -72,26 +72,29 @@ class HomeController extends Controller
 
             $result1 = new stdClass();
             $result1->nome = "Ações";
+            $result1->soma = number_format($somaAcoes, 2, ',', '.');
             $valor1 = ($somaAcoes / $somaTotal) * 100;
-            $result1->valor = number_format($valor1, 2);
+            $result1->porcentagem = number_format($valor1, 2);
 
             array_push($arrayResult, $result1);
 
             $result2 = new stdClass();
             $result2->nome = "FII's";
+            $result2->soma = number_format($somaFiis, 2, ',', '.');
             $valor2 = ($somaFiis / $somaTotal) * 100;
-            $result2->valor = number_format($valor2, 2);
+            $result2->porcentagem = number_format($valor2, 2);
 
             array_push($arrayResult, $result2);
 
             $result3 = new stdClass();
             $result3->nome = "Criptos";
+            $result3->soma = number_format($somaCriptos, 2, ',', '.');
             $valor3 = ($somaCriptos / $somaTotal) * 100;
-            $result3->valor = number_format($valor3, 2);
+            $result3->porcentagem = number_format($valor3, 2);
 
             array_push($arrayResult, $result3);
 
-            return response()->json($arrayResult);
+            return response()->json(['dados' => $arrayResult, 'total' => number_format($somaTotal, 2, ',', '.')]);
 
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), 500);

@@ -50,13 +50,14 @@ class InvestimentoCriptoController extends Controller
             foreach ($criptos as $c) {
                 $result = new stdClass();
                 $result->nome = $c->ativo_info->sigla;
-                $valor = (($c->valor_unitario*$c->quantidade) / $somaTotal) * 100;
-                $result->valor = number_format($valor, 2);
+                $result->valor = number_format(($c->valor_unitario*$c->quantidade), 2, ',', '.');
+                $porcentagem = (($c->valor_unitario*$c->quantidade) / $somaTotal) * 100;
+                $result->porcentagem = number_format($porcentagem, 2);
 
                 array_push($arrayResult, $result);
             }
 
-            return response()->json($arrayResult);
+            return response()->json(['dados' => $arrayResult, 'total' => number_format($somaTotal, 2, ',', '.')]);
 
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), 500);
@@ -84,10 +85,10 @@ class InvestimentoCriptoController extends Controller
                 'corretora' => 'max:250',
                 'data de compra' => 'required|date',
                 'valor unitário' => 'required',
-                'quantidade' => 'required|regex:/^\d{1,15}(\.\d{0,5})?$/'
+                'quantidade' => 'required|numeric|regex:/^\d{1,15}(\.\d{0,5})?$/'
             ];
             $messages = [
-                'quantidade.regex' => "A 'quantidade' no cadastro da criptomoeda deve ter no máximo 15 casas a esquerda da vírgula e no máximo 5 a direita!"
+                'quantidade.regex' => "A 'quantidade' no cadastro da criptomoeda deve ter no máximo 15 dígitos a esquerda da vírgula e no máximo 5 a direita!"
             ];
             $validacao = Validator::make($input, $rules, $messages);
             $validacao->validate();
@@ -156,10 +157,10 @@ class InvestimentoCriptoController extends Controller
                 'corretora' => 'max:250',
                 'data de compra' => 'required|date',
                 'valor unitário' => 'required',
-                'quantidade' => 'required|regex:/^\d{1,15}(\.\d{0,5})?$/'
+                'quantidade' => 'required|numeric|regex:/^\d{1,15}(\.\d{0,5})?$/'
             ];
             $messages = [
-                'quantidade.regex' => "A 'quantidade' no cadastro da criptomoeda deve ter no máximo 15 casas a esquerda da vírgula e no máximo 5 a direita!"
+                'quantidade.regex' => "A 'quantidade' no cadastro da criptomoeda deve ter no máximo 15 dígitos a esquerda da vírgula e no máximo 5 a direita!"
             ];
             $validacao = Validator::make($input, $rules, $messages);
             $validacao->validate();

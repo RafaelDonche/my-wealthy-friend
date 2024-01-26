@@ -52,7 +52,6 @@ class AtualizarAtivos implements ShouldQueue
                 $stocks = $data['stocks'];
 
                 foreach ($stocks as $stock) {
-                    error_log($stock['stock']);
 
                     $segmento = SegmentoAtivo::where('nomeIngles', $stock['sector'])->first();
 

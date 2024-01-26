@@ -50,13 +50,14 @@ class InvestimentoAcaoController extends Controller
             foreach ($acoes as $a) {
                 $result = new stdClass();
                 $result->nome = $a->ativo_info->sigla;
-                $valor = (($a->valor_unitario*$a->quantidade) / $somaTotal) * 100;
-                $result->valor = number_format($valor, 2);
+                $result->valor = number_format(($a->valor_unitario*$a->quantidade), 2, ',', '.');
+                $porcentagem = (($a->valor_unitario*$a->quantidade) / $somaTotal) * 100;
+                $result->porcentagem = number_format($porcentagem, 2);
 
                 array_push($arrayResult, $result);
             }
 
-            return response()->json($arrayResult);
+            return response()->json(['dados' => $arrayResult, 'total' => number_format($somaTotal, 2, ',', '.')]);
 
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), 500);
@@ -183,8 +184,12 @@ class InvestimentoAcaoController extends Controller
      * @param  \App\Models\InvestimentoAcao  $investimentoAcao
      * @return \Illuminate\Http\Response
      */
-    public function destroy(InvestimentoAcao $investimentoAcao)
+    public function destroy(Request $request, $id)
     {
-        //
+        try {
+            //code...
+        } catch (\Exception $ex) {
+            return back()->with('erro', $ex->getMessage())->withInput();
+        }
     }
 }
