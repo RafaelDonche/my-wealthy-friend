@@ -16,11 +16,11 @@ class SegmentoAtivoTableSeeder extends Seeder
     {
         DB::table('segmento_ativos')->insert([
             [
-                'nome' => "Comercio de varejo",
+                'nome' => "Comércio varejista",
                 'nomeIngles' => "Retail Trade"
             ],
             [
-                'nome' => "Minerais Energéticos",
+                'nome' => "Minerais energéticos",
                 'nomeIngles' => "Energy Minerals"
             ],
             [
@@ -28,15 +28,15 @@ class SegmentoAtivoTableSeeder extends Seeder
                 'nomeIngles' => "Health Services"
             ],
             [
-                'nome' => "Serviços de utilidade pública",
+                'nome' => "Utilidades",
                 'nomeIngles' => "Utilities"
             ],
             [
-                'nome' => "Finança",
+                'nome' => "Finanças",
                 'nomeIngles' => "Finance"
             ],
             [
-                'nome' => "Serviços do Consumidor",
+                'nome' => "Serviços ao consumidor",
                 'nomeIngles' => "Consumer Services"
             ],
             [
@@ -44,7 +44,7 @@ class SegmentoAtivoTableSeeder extends Seeder
                 'nomeIngles' => "Consumer Non-Durables"
             ],
             [
-                'nome' => "Minerais Não Energéticos",
+                'nome' => "Minerais não energéticos",
                 'nomeIngles' => "Non-Energy Minerals"
             ],
             [
@@ -52,7 +52,7 @@ class SegmentoAtivoTableSeeder extends Seeder
                 'nomeIngles' => "Commercial Services"
             ],
             [
-                'nome' => "Serviços de Distribuição",
+                'nome' => "Serviços de distribuição",
                 'nomeIngles' => "Distribution Services"
             ],
             [
@@ -60,11 +60,11 @@ class SegmentoAtivoTableSeeder extends Seeder
                 'nomeIngles' => "Transportation"
             ],
             [
-                'nome' => "Serviços de Tecnologia",
+                'nome' => "Serviços de tecnologia",
                 'nomeIngles' => "Technology Services"
             ],
             [
-                'nome' => "Indústrias de Processo",
+                'nome' => "Indústrias de processo",
                 'nomeIngles' => "Process Industries"
             ],
             [
@@ -72,7 +72,7 @@ class SegmentoAtivoTableSeeder extends Seeder
                 'nomeIngles' => "Communications"
             ],
             [
-                'nome' => "Fabricação de Produtores",
+                'nome' => "Manufatura de produtores",
                 'nomeIngles' => "Producer Manufacturing"
             ],
             [
@@ -80,20 +80,24 @@ class SegmentoAtivoTableSeeder extends Seeder
                 'nomeIngles' => "Miscellaneous"
             ],
             [
-                'nome' => "Tecnologia Eletrônica",
+                'nome' => "Tecnologia eletrônica",
                 'nomeIngles' => "Electronic Technology"
             ],
             [
-                'nome' => "Serviços Industriais",
+                'nome' => "Serviços industriais",
                 'nomeIngles' => "Industrial Services"
             ],
             [
-                'nome' => "Tecnologia em Saúde",
+                'nome' => "Tecnologia de saúde",
                 'nomeIngles' => "Health Technology"
             ],
             [
-                'nome' => "Bens de Consumo Duráveis",
+                'nome' => "Bens de consumo duráveis",
                 'nomeIngles' => "Consumer Durables"
+            ],
+            [
+                'nome' => "Outros",
+                'nomeIngles' => null
             ]
         ]);
     }

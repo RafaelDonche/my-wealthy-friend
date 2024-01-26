@@ -80,11 +80,11 @@ class InvestimentoAcaoController extends Controller
                 'quantidade' => $request->quantidade_acao
             ];
             $rules = [
-                'ação' => 'required',
+                'ação' => 'required|integer',
                 'corretora' => 'max:250',
                 'data de compra' => 'required|date',
                 'valor unitário' => 'required',
-                'quantidade' => 'required'
+                'quantidade' => 'required|integer'
             ];
             $validacao = Validator::make($input, $rules);
             $validacao->validate();
@@ -140,9 +140,41 @@ class InvestimentoAcaoController extends Controller
      * @param  \App\Models\InvestimentoAcao  $investimentoAcao
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, InvestimentoAcao $investimentoAcao)
+    public function update(Request $request, $id)
     {
-        //
+        try {
+            $input = [
+                'corretora' => $request->corretora,
+                'data de compra' => $request->data_compra,
+                'valor unitário' => str_replace(",", ".", str_replace(".", "", $request->valor_unitario)),
+                'quantidade' => $request->quantidade
+            ];
+            $rules = [
+                'corretora' => 'max:250',
+                'data de compra' => 'required|date',
+                'valor unitário' => 'required',
+                'quantidade' => 'required|integer'
+            ];
+            $validacao = Validator::make($input, $rules);
+            $validacao->validate();
+
+            $investimento = InvestimentoAcao::find($id);
+            $investimento->data_compra = $request->data_compra;
+            $investimento->quantidade = $request->quantidade;
+            $investimento->valor_unitario = str_replace(",", ".", str_replace(".", "", $request->valor_unitario));
+            $investimento->corretora = $request->corretora;
+            $investimento->save();
+
+            return back()->with('success', 'Cadastro editado com sucesso.');
+
+        }catch (ValidationException $e ) {
+            $message = $e->errors();
+            return redirect()->back()
+                ->withErrors($message)
+                ->withInput();
+        } catch (\Exception $ex) {
+            return back()->with('erro', $ex->getMessage())->withInput();
+        }
     }
 
     /**

@@ -19,7 +19,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/list', [ApiController::class, 'list'])->name('api.list');
-Route::get('/listCripto', [ApiController::class, 'listCripto'])->name('api.listCripto');
-Route::get('/obterAcoes/{id_user}', [ApiController::class, 'obterAcoes'])->name('api.obterAcoes');
+// Route::get('/list', [ApiController::class, 'list'])->name('api.list');
 

@@ -16,7 +16,7 @@ class CreateSegmentoAtivosTable extends Migration
         Schema::create('segmento_ativos', function (Blueprint $table) {
             $table->increments('id');
             $table->string('nome');
-            $table->string('nomeIngles');
+            $table->string('nomeIngles')->nullable();
             $table->timestamps();
         });
     }

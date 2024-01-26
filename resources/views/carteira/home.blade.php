@@ -4,6 +4,10 @@
 
     <style>
 
+        .float-end {
+            float: right;
+        }
+
         .nav-tabs .nav-link {
             color: black;
         }
@@ -98,6 +102,10 @@
         .text-end {
             text-align: right;
         }
+
+        .dropdown-menu:hover {
+            cursor: pointer;
+        }
     </style>
 
     @include('errors.alerts')
@@ -159,12 +167,33 @@
                                                 @endif
                                             </div>
                                             <div class="col-md-9 inner-body">
+                                                <div class="card-actions float-end">
+                                                    <div class="dropdown position-relative">
+                                                        <a href="#" data-toggle="dropdown">
+                                                            <i class="fas fa-bars"></i>
+                                                        </a>
+                                                        <div class="dropdown-menu dropdown-menu-end">
+                                                            <a class="dropdown-item" data-toggle="modal"
+                                                                data-target="#editarAtivo{{ $t->id }}-{{ $t->ativo_info->id_tipo }}">Editar</a>
+                                                            <a class="dropdown-item" idAtivo="{{ $t->id }}"
+                                                                contexto="{{ $t->ativo_info->id_tipo }}" onclick="abrirModalVender()">Vender</a>
+                                                            <a class="dropdown-item" idAtivo="{{ $t->id }}"
+                                                                contexto="{{ $t->ativo_info->id_tipo }}" onclick="abrirModalExcluir()">Excluir</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                                 <h5 class="card-title text-center mb-0">{{ $t->ativo_info->sigla }} - {{ $t->ativo_info->nome }}</h5>
                                                 <p class="text-muted text-right">
                                                     obtido em {{ date('d/m/Y', strtotime($t->data_compra)) }}
                                                 </p>
                                                 <p class="mt-2 mb-0">Saldo da carteira: R$ {{ number_format($t->valor_unitario*$t->quantidade, 2, ',', '.') }}</p>
-                                                <p class="m-0">Quantidade: {{ $t->quantidade }}</p>
+
+                                                @if ($t->ativo_info->id_tipo == 3)
+                                                    <p class="m-0">Quantidade: {{ number_format($t->quantidade, 5, ',', '.') }}</p>
+                                                @else
+                                                    <p class="m-0">Quantidade: {{ intval($t->quantidade) }}</p>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -387,6 +416,132 @@
         </div>
     </div>
 
+    @foreach ($todos as $t)
+        <!-- Modal = editarAtivo -->
+        <div class="modal fade" id="editarAtivo{{ $t->id }}-{{ $t->ativo_info->id_tipo }}" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edite as informçações do seu ativo</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    @if ($t->ativo_info->id_tipo == 1)
+                        <form action="{{ route('carteira.acao.update', $t->id )}}" method="post">
+                    @endif
+                    @if ($t->ativo_info->id_tipo == 2)
+                        <form action="{{ route('carteira.fundo.update', $t->id )}}" method="post">
+                    @endif
+                    @if ($t->ativo_info->id_tipo == 3)
+                        <form action="{{ route('carteira.cripto.update', $t->id )}}" method="post">
+                    @endif
+                        @csrf
+                        <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-3 text-center">
+                                        <img src="{{ $t->ativo_info->logo }}" width="65px" height="65px" alt="Logo do ativo para edição">
+                                    </div>
+                                    <div class="col-md-9 mb-2">
+                                        <label class="form-label" for="ativo">Ativo a ser editado:</label>
+                                        <select class="form-control select2" name="ativo" disabled required>
+                                            <option value="{{ $t->id_ativo }}" selected>
+                                                {{ $t->ativo_info->sigla . ' - ' . $t->ativo_info->nome }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label" for="corretora">Corretora</label>
+                                        <input type="text" class="form-control" name="corretora" id="corretora"
+                                            value="{{ $t->corretora }}">
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label" for="data_compra">Data de compra</label>
+                                        <input type="date" class="form-control" name="data_compra" id="data_compra"
+                                            value="{{ $t->data_compra }}" required>
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label" for="valor_unitario">Valor unitário (R$)</label>
+                                        <input type="text" class="form-control valor_unitario" name="valor_unitario" id="valor_unitario"
+                                            value="{{ $t->valor_unitario }}" required>
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label" for="quantidade">Quantidade</label>
+                                        <input type="text" class="form-control" name="quantidade" id="quantidade"
+                                            placeholder="quantidade até 5 casas decimais"
+                                            value="{{ $t->ativo_info->id_tipo == 3 ? number_format($t->quantidade, 5, ',', '.') : intval($t->quantidade) }}" required>
+                                    </div>
+                                </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
+    <!-- Modal = removerAtivo -->
+    <div class="modal fade" id="removerAtivo" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tem certeza que deseja excluir este ativo?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ route('carteira.acao.store') }}" method="post">
+                    @csrf
+                    <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-3 text-center">
+                                    <img src="{{ asset('assets/selecione-um-ativo.png') }}" id="img_logo_acao" width="65px" height="65px" alt="Logo da ação selecionada">
+                                </div>
+                                <div class="col-md-9 mb-2">
+                                    <label class="form-label" for="acao">Selecione a ação:</label>
+                                    <select class="form-control select2" name="acao" id="acao" required>
+                                        <option></option>
+                                        @foreach ($ativosAcoes as $aa)
+                                            <option value="{{ $aa->id }}" logourl="{{ $aa->logo }}"
+                                                valor="{{ number_format($aa->historico[0]->valor_fechamento, 2, ',', '.') }}">
+                                                {{ $aa->sigla . ' - ' . $aa->nome }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label" for="corretora_acao">Qual corretora utilizou?</label>
+                                    <input type="text" class="form-control" name="corretora_acao" id="corretora_acao"
+                                        placeholder="Rico, Toro, Itaú...">
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label" for="data_compra_acao">Quando realizou a compra?</label>
+                                    <input type="date" class="form-control" name="data_compra_acao" id="data_compra_acao" required>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label" for="valor_unitario_acao">Qual foi o valor unitário na compra? (R$)</label>
+                                    <input type="text" class="form-control valor_unitario" name="valor_unitario_acao" id="valor_unitario_acao"
+                                        placeholder="valor unítário" required>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label" for="quantidade_acao">Quantas foram compradas?</label>
+                                    <input type="text" class="form-control" name="quantidade_acao" id="quantidade_acao"
+                                        placeholder="quantidade" required>
+                                </div>
+                            </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                        <button type="submit" class="btn btn-primary">Adicionar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal = adicionarAcao -->
     <div class="modal fade" id="adicionarAcao" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -409,7 +564,8 @@
                                     <select class="form-control select2" name="acao" id="acao" required>
                                         <option></option>
                                         @foreach ($ativosAcoes as $aa)
-                                            <option value="{{ $aa->id }}" logourl="{{ $aa->logo }}">
+                                            <option value="{{ $aa->id }}" logourl="{{ $aa->logo }}"
+                                                valor="{{ number_format($aa->historico[0]->valor_fechamento, 2, ',', '.') }}">
                                                 {{ $aa->sigla . ' - ' . $aa->nome }}
                                             </option>
                                         @endforeach
@@ -418,14 +574,14 @@
                                 <div class="col-md-6 mb-2">
                                     <label class="form-label" for="corretora_acao">Qual corretora utilizou?</label>
                                     <input type="text" class="form-control" name="corretora_acao" id="corretora_acao"
-                                        placeholder="Rico, Toro, Itaú..." required>
+                                        placeholder="Rico, Toro, Itaú...">
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <label class="form-label" for="data_compra_acao">Quando realizou a compra?</label>
                                     <input type="date" class="form-control" name="data_compra_acao" id="data_compra_acao" required>
                                 </div>
                                 <div class="col-md-6 mb-2">
-                                    <label class="form-label" for="valor_unitario_acao">Qual foi o valor unitário na compra?</label>
+                                    <label class="form-label" for="valor_unitario_acao">Qual foi o valor unitário na compra? (R$)</label>
                                     <input type="text" class="form-control valor_unitario" name="valor_unitario_acao" id="valor_unitario_acao"
                                         placeholder="valor unítário" required>
                                 </div>
@@ -467,7 +623,8 @@
                                     <select class="form-control select2" name="fii" id="fii" required>
                                         <option></option>
                                         @foreach ($ativosFiis as $af)
-                                            <option value="{{ $af->id }}" logourl="{{ $af->logo }}">
+                                            <option value="{{ $af->id }}" logourl="{{ $af->logo }}"
+                                                valor="{{ number_format($af->historico[0]->valor_fechamento, 2, ',', '.') }}">
                                                 {{ $af->sigla . ' - ' . $af->nome }}
                                             </option>
                                         @endforeach
@@ -476,14 +633,14 @@
                                 <div class="col-md-6 mb-2">
                                     <label class="form-label" for="corretora_fii">Qual corretora utilizou?</label>
                                     <input type="text" class="form-control" name="corretora_fii" id="corretora_fii"
-                                        placeholder="Rico, XP, Mobills..." required>
+                                        placeholder="Rico, XP, Mobills...">
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <label class="form-label" for="data_compra_fii">Quando realizou a compra?</label>
                                     <input type="date" class="form-control" name="data_compra_fii" id="data_compra_fii" required>
                                 </div>
                                 <div class="col-md-6 mb-2">
-                                    <label class="form-label" for="valor_unitario_fii">Qual foi o valor unitário na compra?</label>
+                                    <label class="form-label" for="valor_unitario_fii">Qual foi o valor unitário na compra? (R$)</label>
                                     <input type="text" class="form-control valor_unitario" name="valor_unitario_fii" id="valor_unitario_fii"
                                         placeholder="valor unítário" required>
                                 </div>
@@ -525,7 +682,8 @@
                                     <select class="form-control select2" name="cripto" id="cripto" required>
                                         <option></option>
                                         @foreach ($ativosCriptos as $ac)
-                                            <option value="{{ $ac->id }}" logourl="{{ $ac->logo }}">
+                                            <option value="{{ $ac->id }}" logourl="{{ $ac->logo }}"
+                                                valor="{{ number_format($ac->historico[0]->valor_fechamento, 2, ',', '.') }}">
                                                 {{ $ac->sigla . ' - ' . $ac->nome }}
                                             </option>
                                         @endforeach
@@ -534,20 +692,20 @@
                                 <div class="col-md-6 mb-2">
                                     <label class="form-label" for="corretora_cripto">Qual corretora utilizou?</label>
                                     <input type="text" class="form-control" name="corretora_cripto" id="corretora_cripto"
-                                        placeholder="Binance, Foxbit, BitcoinTrade..." required>
+                                        placeholder="Binance, Foxbit, BitcoinTrade...">
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <label class="form-label" for="data_compra_cripto">Quando realizou a compra?</label>
                                     <input type="date" class="form-control" name="data_compra_cripto" id="data_compra_cripto" required>
                                 </div>
                                 <div class="col-md-6 mb-2">
-                                    <label class="form-label" for="valor_unitario_cripto">Qual era o valor da moeda na compra?</label>
+                                    <label class="form-label" for="valor_unitario_cripto">Qual era o valor da moeda na compra? (R$)</label>
                                     <input type="text" class="form-control valor_unitario" name="valor_unitario_cripto" id="valor_unitario_cripto"
                                         placeholder="valor unítário" required>
                                 </div>
                                 <div class="col-md-6 mb-2">
                                     <label class="form-label" for="quantidade_cripto">Quantas foram compradas?</label>
-                                    <input type="text" class="form-control qnt" name="quantidade_cripto" id="quantidade_cripto"
+                                    <input type="text" class="form-control" name="quantidade_cripto" id="quantidade_cripto"
                                         placeholder="quantidade até 5 casas decimais" required>
                                 </div>
                             </div>
@@ -566,9 +724,8 @@
 @section('scripts')
     <script>
         $('.valor_unitario').mask('000.000.000,00', { reverse: true });
-        $('.qnt').mask('000000,00000', { reverse: true });
 
-        var dynamicColors = function() {
+        function dynamicColors() {
             var r = Math.floor(Math.random() * 255);
             var g = Math.floor(Math.random() * 255);
             var b = Math.floor(Math.random() * 255);
@@ -591,8 +748,6 @@
             // obter valores para o grafico de entrada
             axios.get(`{{ route('carteira.obterDados') }}`)
             .then(function (response) {
-
-                console.log(response.data);
 
                 var xValues = []; // nome
                 var yValues = []; // valor
@@ -796,20 +951,26 @@
 
             $('#acao').change(function() {
                 var logo = this.options[this.selectedIndex].getAttribute('logourl');
+                var valor = this.options[this.selectedIndex].getAttribute('valor');
 
                 $('#img_logo_acao').attr('src', logo);
+                $("#valor_unitario_acao").attr('value', valor);
             });
 
             $('#fii').change(function() {
                 var logo = this.options[this.selectedIndex].getAttribute('logourl');
+                var valor = this.options[this.selectedIndex].getAttribute('valor');
 
                 $('#img_logo_fii').attr('src', logo);
+                $("#valor_unitario_fii").attr('value', valor);
             });
 
             $('#cripto').change(function() {
                 var logo = this.options[this.selectedIndex].getAttribute('logourl');
+                var valor = this.options[this.selectedIndex].getAttribute('valor');
 
                 $('#img_logo_cripto').attr('src', logo);
+                $("#valor_unitario_cripto").attr('value', valor);
             });
         });
 

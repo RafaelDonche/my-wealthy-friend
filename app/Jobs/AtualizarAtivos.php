@@ -3,7 +3,9 @@
 namespace App\Jobs;
 
 use App\Models\Ativo;
+use App\Models\HistoricoAtivo;
 use App\Models\SegmentoAtivo;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -32,7 +34,6 @@ class AtualizarAtivos implements ShouldQueue
      */
     public function handle()
     {
-
         try {
 
             // atualizar ações e fiis
@@ -51,25 +52,20 @@ class AtualizarAtivos implements ShouldQueue
                 $stocks = $data['stocks'];
 
                 foreach ($stocks as $stock) {
+                    error_log($stock['stock']);
 
-                    if ($stock['sector'] != null) {
-                        $segmento = SegmentoAtivo::where('nomeIngles', $stock['sector'])->first();
+                    $segmento = SegmentoAtivo::where('nomeIngles', $stock['sector'])->first();
 
-                        if (!$segmento) {
-                            $segmento = new SegmentoAtivo();
-                            $segmento->nome = $stock['sector'];
-                            $segmento->sigla = $stock['sector'];
-                            $segmento->save();
-                        }
-
-                        $setor = $segmento->id;
-                    } else {
-                        $setor = null;
+                    if (!$segmento) {
+                        $segmento = new SegmentoAtivo();
+                        $segmento->nome = $stock['sector'];
+                        $segmento->sigla = $stock['sector'];
+                        $segmento->save();
                     }
 
-                    $verifica = Ativo::where('sigla', $stock['stock'])->first();
+                    $ativo = Ativo::where('sigla', $stock['stock'])->first();
 
-                    if (!$verifica) {
+                    if (!$ativo) {
                         $ativo = new Ativo();
                         $ativo->nome = $stock['name'];
                         $ativo->sigla = $stock['stock'];
@@ -83,8 +79,24 @@ class AtualizarAtivos implements ShouldQueue
                             $ativo->id_tipo = 2;
                         }
 
-                        $ativo->id_segmento = $setor;
+                        $ativo->id_segmento = $segmento->id;
                         $ativo->save();
+
+                        $historico_ativo = new HistoricoAtivo();
+                        $historico_ativo->data = Carbon::now();
+                        $historico_ativo->valor_fechamento = $stock['close'];
+                        $historico_ativo->variacao = $stock['change'];
+                        $historico_ativo->id_ativo = $ativo->id;
+                        $historico_ativo->save();
+
+                    }else {
+
+                        $historico_ativo = new HistoricoAtivo();
+                        $historico_ativo->data = Carbon::now();
+                        $historico_ativo->valor_fechamento = $stock['close'];
+                        $historico_ativo->variacao = $stock['change'];
+                        $historico_ativo->id_ativo = $ativo->id;
+                        $historico_ativo->save();
                     }
                 }
             }
@@ -106,43 +118,57 @@ class AtualizarAtivos implements ShouldQueue
 
                 foreach ($coins as $coin) {
 
-                    $verifica = Ativo::where('sigla', $coin)->first();
+                    $url3 = "https://brapi.dev/api/v2/crypto";
+                    $params3 = [
+                        'coin' => $coin,
+                        'token' => env("MIX_API_BEARER_TOKEN")
+                    ];
 
-                    if (!$verifica) {
+                    $query3 = http_build_query($params3);
+                    $fullUrl3 = $url3 . '?' . $query3;
 
-                        $url3 = "https://brapi.dev/api/v2/crypto";
-                        $params3 = [
-                            'coin' => $coin,
-                            'token' => env("MIX_API_BEARER_TOKEN")
-                        ];
+                    $response3 = file_get_contents($fullUrl3);
 
-                        $query3 = http_build_query($params3);
-                        $fullUrl3 = $url3 . '?' . $query3;
+                    if ($response3 !== false) {
+                        $data3 = json_decode($response3, true);
+                        $resultCoin = $data3['coins'];
+                        $result = $resultCoin[0];
 
-                        $response3 = file_get_contents($fullUrl3);
+                        $ativo = Ativo::where('sigla', $result['coin'])->first();
 
-                        if ($response3 !== false) {
-                            $data3 = json_decode($response3, true);
-                            $resultCoin = $data3['coins'];
+                        if (!$ativo) {
 
-                            $result = $resultCoin[0];
+                            $ativo = new Ativo();
+                            $ativo->nome = $result['coinName'];
+                            $ativo->sigla = $result['coin'];
+                            $ativo->logo = $result['coinImageUrl'];
+                            $ativo->id_tipo = 3;
+                            $ativo->save();
 
-                            $cripto = new Ativo();
-                            $cripto->nome = $result['coinName'];
-                            $cripto->sigla = $result['coin'];
-                            $cripto->logo = $result['coinImageUrl'];
-                            $cripto->id_tipo = 3;
-                            $cripto->save();
+                            $historico_ativo = new HistoricoAtivo();
+                            $historico_ativo->data = Carbon::now();
+                            $historico_ativo->valor_fechamento = $result['regularMarketPrice'];
+                            $historico_ativo->variacao = $result['regularMarketChange'];
+                            $historico_ativo->id_ativo = $ativo->id;
+                            $historico_ativo->save();
+
+                        }else {
+
+                            $historico_ativo = new HistoricoAtivo();
+                            $historico_ativo->data = Carbon::now();
+                            $historico_ativo->valor_fechamento = $result['regularMarketPrice'];
+                            $historico_ativo->variacao = $result['regularMarketChange'];
+                            $historico_ativo->id_ativo = $ativo->id;
+                            $historico_ativo->save();
 
                         }
                     }
                 }
             }
 
-            return false;
+            return error_log("Deu tudo certo!");
         } catch (\Exception $ex) {
-            return $ex;
+            error_log($ex->getMessage());
         }
-
     }
 }
