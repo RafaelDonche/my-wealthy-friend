@@ -17,6 +17,7 @@
         <link rel="stylesheet" href="{{ asset('css/fontawesome.css') }}">
         <link rel="stylesheet" href="{{ asset('css/style.css') }}">
         <link href="{{ asset('select2-4.1.0/dist/css/select2.min.css') }}" rel="stylesheet" />
+        <link href="https://cdn.datatables.net/v/dt/dt-1.13.8/datatables.min.css" rel="stylesheet">
 
         <style>
             body {
@@ -51,11 +52,11 @@
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="{{ route('carteira.home') }}">Carteira</a>
+                        <a class="nav-link {{  str_contains(Route::current()->uri, 'carteira/') ? 'active' : null }}"
+                            href="{{ route('carteira.home') }}">Carteira</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Ações</a>
@@ -90,6 +91,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
     <script src="{{ asset('select2-4.1.0/dist/js/select2.min.js') }}"></script>
     <script src="{{ asset('js/jQuery-Mask-Plugin-master/dist/jquery.mask.min.js') }}"></script>
+    <script src="https://cdn.datatables.net/v/dt/dt-1.13.8/datatables.min.js"></script>
 
     @yield('scripts')
 

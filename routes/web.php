@@ -54,6 +54,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::group(['prefix' => '/acao', 'as' => 'acao.'], function() {
             Route::get('/obterDados', [InvestimentoAcaoController::class, 'obterDados'])->name('obterDados');
             Route::post('/store', [InvestimentoAcaoController::class, 'store'])->name('store');
+            Route::get('/show/{id}', [InvestimentoAcaoController::class, 'show'])->name('show');
             Route::post('/update/{id}', [InvestimentoAcaoController::class, 'update'])->name('update');
             Route::post('/vender/{id}', [InvestimentoAcaoController::class, 'vender'])->name('vender');
             Route::post('/destroy/{id}', [InvestimentoAcaoController::class, 'destroy'])->name('destroy');
@@ -63,6 +64,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::group(['prefix' => '/fundo', 'as' => 'fundo.'], function() {
             Route::get('/obterDados', [InvestimentoFundoController::class, 'obterDados'])->name('obterDados');
             Route::post('/store', [InvestimentoFundoController::class, 'store'])->name('store');
+            Route::get('/show/{id}', [InvestimentoFundoController::class, 'show'])->name('show');
             Route::post('/update/{id}', [InvestimentoFundoController::class, 'update'])->name('update');
             Route::post('/vender/{id}', [InvestimentoFundoController::class, 'vender'])->name('vender');
             Route::post('/destroy/{id}', [InvestimentoFundoController::class, 'destroy'])->name('destroy');
@@ -72,6 +74,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::group(['prefix' => '/cripto', 'as' => 'cripto.'], function() {
             Route::get('/obterDados', [InvestimentoCriptoController::class, 'obterDados'])->name('obterDados');
             Route::post('/store', [InvestimentoCriptoController::class, 'store'])->name('store');
+            Route::get('/show/{id}', [InvestimentoCriptoController::class, 'show'])->name('show');
             Route::post('/update/{id}', [InvestimentoCriptoController::class, 'update'])->name('update');
             Route::post('/vender/{id}', [InvestimentoCriptoController::class, 'vender'])->name('vender');
             Route::post('/destroy/{id}', [InvestimentoCriptoController::class, 'destroy'])->name('destroy');

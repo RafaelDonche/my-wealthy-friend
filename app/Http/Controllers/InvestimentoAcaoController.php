@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InvestimentoAcao;
+use App\Models\InvestimentoAcaoVenda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -37,7 +38,7 @@ class InvestimentoAcaoController extends Controller
     {
         try {
 
-            $acoes = InvestimentoAcao::where('ativo', 1)->where('id_user', auth()->user()->id)->whereNull('data_venda')->get();
+            $acoes = InvestimentoAcao::where('ativo', 1)->where('id_user', auth()->user()->id)->get();
 
             $arrayResult = [];
 
@@ -55,13 +56,12 @@ class InvestimentoAcaoController extends Controller
                 $result->porcentagem = number_format($porcentagem, 2);
 
                 array_push($arrayResult, $result);
-            }
 
-            $acoesVendidas = InvestimentoAcao::where('ativo', 1)->where('id_user', auth()->user()->id)->whereNotNull('data_venda')->get();
-
-            $somaTotalVendidas = 0;
-            foreach ($acoesVendidas as $av) {
-                $somaTotalVendidas = $somaTotalVendidas + ($av->valor_venda*$av->quantidade_venda);
+                $acoesVendidas = $a->vendas;
+                $somaTotalVendidas = 0;
+                foreach ($acoesVendidas as $av) {
+                    $somaTotalVendidas = $somaTotalVendidas + ($av->valor_unitario*$av->quantidade);
+                }
             }
 
             return response()->json([
@@ -108,6 +108,7 @@ class InvestimentoAcaoController extends Controller
             $investimento->valor_unitario = str_replace(",", ".", str_replace(".", "", $request->valor_unitario_acao));
             $investimento->corretora = $request->corretora_acao;
             $investimento->id_user = auth()->user()->id;
+            $investimento->vendido = 0;
             $investimento->ativo = 1;
             $investimento->save();
 
@@ -129,9 +130,23 @@ class InvestimentoAcaoController extends Controller
      * @param  \App\Models\InvestimentoAcao  $investimentoAcao
      * @return \Illuminate\Http\Response
      */
-    public function show(InvestimentoAcao $investimentoAcao)
+    public function show($id)
     {
-        //
+        try {
+
+            $item = InvestimentoAcao::where('ativo', 1)->find($id);
+
+            if (!$item) {
+                return back()->with('erro', 'Este cadastro não está mais ativo.');
+            }
+
+            $rota_consulta = route('api.obterDadosEmpresa', $item->ativo_info->sigla);
+
+            return view('carteira.investimento-acao', compact('item', 'rota_consulta'));
+
+        } catch (\Exception $ex) {
+            return back()->with('erro', $ex->getMessage())->withInput();
+        }
     }
 
     /**
@@ -190,10 +205,7 @@ class InvestimentoAcaoController extends Controller
     }
 
     /**
-     * Marca o ativo como vendido.
-     *
-     * @param  \App\Models\InvestimentoAcao  $investimentoAcao
-     * @return \Illuminate\Http\Response
+     * Cria uma venda para o investimento, subtrai a quantidade do investimento e marca como vendido se for o caso.
      */
     public function vender(Request $request, $id)
     {
@@ -212,24 +224,40 @@ class InvestimentoAcaoController extends Controller
             $validacao = Validator::make($input, $rules);
             $validacao->validate();
 
+            // acha o investimento
             $acao = InvestimentoAcao::find($id);
 
+            // data de venda não pode ser antes da data de compra
             if ($acao->data_compra > $request->data_venda) {
                 return back()->with('erro', 'A data de venda não pode ser antes da data de compra (' . date('d/m/Y', strtotime($acao->data_compra)) . ')');
             }
 
+            // quantidade de venda não pode ser maior que a quantidade do investimento
             if ($acao->quantidade < $request->quantidade_venda) {
                 return back()->with('erro', 'A quantidade vendida não pode ser maior que a quantidade do cadastrada no ativo
                 (' . $acao->quantidade . ')');
             }
 
-            $acao->data_venda = $request->data_venda;
-            $acao->valor_venda = str_replace(",", ".", str_replace(".", "", $request->valor_venda));
-            $acao->quantidade_venda = $request->quantidade_venda;
-            $acao->quantidade = $acao->quantidade - $request->quantidade;
+            $quantidadeAtual = $acao->quantidade - $request->quantidade_venda;
+            $acao->quantidade = $quantidadeAtual;
+
+            // se após subtrair a quantidade o resultado for 0, então o investimento foi vendido
+            if ($quantidadeAtual == 0) {
+                $acao->vendido = true;
+            }
+
             $acao->save();
 
-            return back()->with('success', 'Cadastro marcado como vendido!');
+            // cadastra a venda do investimento
+            $venda = new InvestimentoAcaoVenda();
+            $venda->data_venda = $request->data_venda;
+            $venda->valor_unitario = str_replace(",", ".", str_replace(".", "", $request->valor_venda));
+            $venda->quantidade = $request->quantidade_venda;
+            $venda->id_investimento = $acao->id;
+            $venda->ativo = 1;
+            $venda->save();
+
+            return back()->with('success', 'Cadastro de venda realizado com sucesso!');
 
         } catch (\Exception $ex) {
             return back()->with('erro', $ex->getMessage())->withInput();

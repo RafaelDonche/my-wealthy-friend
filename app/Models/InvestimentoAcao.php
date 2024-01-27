@@ -23,4 +23,8 @@ class InvestimentoAcao extends Model
     public function ativo_info() {
         return $this->hasOne(Ativo::class, 'id', 'id_ativo');
     }
+
+    public function vendas() {
+        return $this->hasMany(InvestimentoAcaoVenda::class, 'id_investimento', 'id')->where('ativo', 1);
+    }
 }

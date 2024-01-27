@@ -70,6 +70,7 @@
         }
 
         .card-ativo:hover {
+            cursor: pointer;
             transform: scale(1.01);
             box-shadow: 0px 6px 6px 4px rgba(0, 0, 0, 0.15);
         }
@@ -169,7 +170,18 @@
                             </div>
                             <div class="col-md-12 cards" id="cards-entrada">
                                 @foreach ($todos as $t)
-                                    <div class="card card-ativo my-2 px-2" nome="{{ $t->ativo_info->sigla . ' - ' . $t->ativo_info->nome }}">
+                                    <div class="card card-ativo my-2 px-2"
+                                        nome="{{ $t->ativo_info->sigla . ' - ' . $t->ativo_info->nome }}"
+                                        @if ($t->ativo_info->id_tipo == 1)
+                                            rota="{{ route('carteira.acao.show', $t->id) }}"
+                                        @endif
+                                        @if ($t->ativo_info->id_tipo == 2)
+                                            rota="{{ route('carteira.fundo.show', $t->id) }}"
+                                        @endif
+                                        @if ($t->ativo_info->id_tipo == 3)
+                                            rota="{{ route('carteira.cripto.show', $t->id) }}"
+                                        @endif
+                                        onclick="showInvestimento(this)">
                                         <div class="card-body row align-items-center">
                                             <div class="col-md-3 text-center col-img">
                                                 @if ($t->ativo_info->id_tipo == 3)
@@ -179,60 +191,6 @@
                                                 @endif
                                             </div>
                                             <div class="col-md-9 inner-body">
-                                                <div class="card-actions float-end">
-                                                    <div class="dropdown position-relative">
-                                                        <a href="#" data-toggle="dropdown">
-                                                            <i class="fas fa-bars"></i>
-                                                        </a>
-                                                        {{-- div contem informações que são usadas no js para usar na modal --}}
-                                                        <div class="dropdown-menu dropdown-menu-end"
-                                                            nome="{{ $t->ativo_info->sigla.' - '.$t->ativo_info->nome }}"
-                                                            saldo="{{ number_format($t->valor_unitario*$t->quantidade, 2, ',', '.') }}"
-                                                            logo="{{ $t->ativo_info->logo }}"
-                                                            valor="{{ number_format($t->valor_unitario, 2, ',', '.') }}"
-                                                            quantidade="{{ $t->ativo_info->id_tipo == 3 ? number_format($t->quantidade, 5, ',', '.') : intval($t->quantidade) }}"
-                                                            idativo="{{ $t->id_ativo }}"
-                                                            corretora="{{ $t->corretora }}"
-                                                            type-quantidade="{{ $t->ativo_info->id_tipo == 3 ? "text" : "number" }}"
-                                                            data-compra="{{ $t->data_compra }}">
-
-                                                            <a class="dropdown-item"
-                                                                @if ($t->ativo_info->id_tipo == 1)
-                                                                    rota="{{ route('carteira.acao.update', $t->id) }}"
-                                                                @endif
-                                                                @if ($t->ativo_info->id_tipo == 2)
-                                                                    rota="{{ route('carteira.fundo.update', $t->id) }}"
-                                                                @endif
-                                                                @if ($t->ativo_info->id_tipo == 3)
-                                                                    rota="{{ route('carteira.cripto.update', $t->id) }}"
-                                                                @endif onclick="abrirModalEditar(this)">Editar</a>
-
-                                                            <a class="dropdown-item"
-                                                                @if ($t->ativo_info->id_tipo == 1)
-                                                                    rota="{{ route('carteira.acao.vender', $t->id) }}"
-                                                                @endif
-                                                                @if ($t->ativo_info->id_tipo == 2)
-                                                                    rota="{{ route('carteira.fundo.vender', $t->id) }}"
-                                                                @endif
-                                                                @if ($t->ativo_info->id_tipo == 3)
-                                                                    rota="{{ route('carteira.cripto.vender', $t->id) }}"
-                                                                @endif onclick="abrirModalVender(this)">Vender</a>
-
-                                                            <a class="dropdown-item"
-                                                                @if ($t->ativo_info->id_tipo == 1)
-                                                                    rota="{{ route('carteira.acao.destroy', $t->id) }}"
-                                                                @endif
-                                                                @if ($t->ativo_info->id_tipo == 2)
-                                                                    rota="{{ route('carteira.fundo.destroy', $t->id) }}"
-                                                                @endif
-                                                                @if ($t->ativo_info->id_tipo == 3)
-                                                                    rota="{{ route('carteira.cripto.destroy', $t->id) }}"
-                                                                @endif
-                                                                onclick="abrirModalExcluir(this)">Excluir</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
                                                 <h5 class="card-title text-center mb-0">{{ $t->ativo_info->sigla }} - {{ $t->ativo_info->nome }}</h5>
                                                 <p class="text-muted text-right">
                                                     obtido em {{ date('d/m/Y', strtotime($t->data_compra)) }}
@@ -277,6 +235,10 @@
                                                     <th colspan="2" class="pr-0 align-bottom">Saldo da carteira: </th>
                                                     <th class="align-bottom text-end" id="totalEntrada"></th>
                                                 </tr>
+                                                <tr>
+                                                    <th colspan="2" class="pr-0 align-bottom">Total vendido: </th>
+                                                    <th class="align-bottom text-end" id="totalEntradaVendidas"></th>
+                                                </tr>
                                             </tfoot>
                                         </table>
                                     </div>
@@ -317,7 +279,7 @@
                                                             data-compra="{{ $t->data_compra }}">
 
                                                             <a class="dropdown-item"
-                                                                rota="{{ route('carteira.acao.vender', $t->id) }}"
+                                                                rota="{{ route('carteira.acao.update', $t->id) }}"
                                                                 onclick="abrirModalEditar(this)">Editar</a>
 
                                                             <a class="dropdown-item"
@@ -420,7 +382,7 @@
                                                             data-compra="{{ $t->data_compra }}">
 
                                                             <a class="dropdown-item"
-                                                                rota="{{ route('carteira.fundo.vender', $t->id) }}"
+                                                                rota="{{ route('carteira.fundo.update', $t->id) }}"
                                                                 onclick="abrirModalEditar(this)">Editar</a>
 
                                                             <a class="dropdown-item"
@@ -478,6 +440,10 @@
                                                     <th colspan="2" class="pr-0 align-bottom">Saldo da carteira: </th>
                                                     <th class="align-bottom text-end" id="totalFiis"></th>
                                                 </tr>
+                                                <tr>
+                                                    <th colspan="2" class="pr-0 align-bottom">Total vendido: </th>
+                                                    <th class="align-bottom text-end" id="totalFiisVendidas"></th>
+                                                </tr>
                                             </tfoot>
                                         </table>
                                     </div>
@@ -519,7 +485,7 @@
                                                             data-compra="{{ $t->data_compra }}">
 
                                                             <a class="dropdown-item"
-                                                                rota="{{ route('carteira.cripto.vender', $t->id) }}"
+                                                                rota="{{ route('carteira.cripto.update', $t->id) }}"
                                                                 onclick="abrirModalEditar(this)">Editar</a>
 
                                                             <a class="dropdown-item"
@@ -577,6 +543,10 @@
                                                     <th colspan="2" class="pr-0 align-bottom">Saldo da carteira: </th>
                                                     <th class="align-bottom text-end" id="totalCriptos"></th>
                                                 </tr>
+                                                <tr>
+                                                    <th colspan="2" class="pr-0 align-bottom">Total vendido: </th>
+                                                    <th class="align-bottom text-end" id="totalCriptosVendidas"></th>
+                                                </tr>
                                             </tfoot>
                                         </table>
                                     </div>
@@ -608,6 +578,12 @@
             var b = Math.floor(200 + Math.random() * 55);
             return "rgb(" + r + "," + g + "," + b + ")";
         };
+
+        function showInvestimento(element) {
+            var rota = element.getAttribute("rota"); console.log(rota);
+
+            window.location.href = rota;
+        }
 
         document.addEventListener("DOMContentLoaded", function() {
 
@@ -646,6 +622,8 @@
                 });
 
                 $('#totalEntrada').html("R$ " + response.data.total);
+
+                $('#totalEntradaVendidas').html("R$ " + response.data.somaTotalVendidas);
 
                 new Chart("entrada-chart", {
                     type: "doughnut",
@@ -751,6 +729,8 @@
 
                 $('#totalFiis').html("R$ " + response.data.total);
 
+                $('#totalFiisVendidas').html("R$ " + response.data.somaTotalVendidas);
+
                 new Chart("fiis-chart", {
                     type: "doughnut",
                     data: {
@@ -801,6 +781,8 @@
                 });
 
                 $('#totalCriptos').html("R$ " + response.data.total);
+
+                $('#totalCriptosVendidas').html("R$ " + response.data.somaTotalVendidas);
 
                 new Chart("criptos-chart", {
                     type: "doughnut",

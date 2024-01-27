@@ -16,7 +16,6 @@ class CreateInvestimentoFundosTable extends Migration
         Schema::create('investimento_fundos', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->date('data_compra');
-            $table->date('data_venda')->nullable();
             $table->integer('quantidade');
             $table->decimal('valor_unitario', 20, 2);
             $table->string('corretora')->nullable();
@@ -24,6 +23,7 @@ class CreateInvestimentoFundosTable extends Migration
             $table->foreign('id_user')->references('id')->on('users');
             $table->integer('id_ativo')->unsigned();
             $table->foreign('id_ativo')->references('id')->on('ativos');
+            $table->boolean('vendido')->default(false);
             $table->boolean('ativo');
             $table->timestamps();
         });
