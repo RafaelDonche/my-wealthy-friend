@@ -37,7 +37,7 @@ class InvestimentoAcaoController extends Controller
     {
         try {
 
-            $acoes = InvestimentoAcao::where('ativo', 1)->where('id_user', auth()->user()->id)->get();
+            $acoes = InvestimentoAcao::where('ativo', 1)->where('id_user', auth()->user()->id)->whereNull('data_venda')->get();
 
             $arrayResult = [];
 
@@ -57,7 +57,18 @@ class InvestimentoAcaoController extends Controller
                 array_push($arrayResult, $result);
             }
 
-            return response()->json(['dados' => $arrayResult, 'total' => number_format($somaTotal, 2, ',', '.')]);
+            $acoesVendidas = InvestimentoAcao::where('ativo', 1)->where('id_user', auth()->user()->id)->whereNotNull('data_venda')->get();
+
+            $somaTotalVendidas = 0;
+            foreach ($acoesVendidas as $av) {
+                $somaTotalVendidas = $somaTotalVendidas + ($av->valor_venda*$av->quantidade_venda);
+            }
+
+            return response()->json([
+                'dados' => $arrayResult,
+                'total' => number_format($somaTotal, 2, ',', '.'),
+                'somaTotalVendidas' => number_format($somaTotalVendidas, 2, ',', '.')
+            ]);
 
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), 500);
@@ -179,6 +190,53 @@ class InvestimentoAcaoController extends Controller
     }
 
     /**
+     * Marca o ativo como vendido.
+     *
+     * @param  \App\Models\InvestimentoAcao  $investimentoAcao
+     * @return \Illuminate\Http\Response
+     */
+    public function vender(Request $request, $id)
+    {
+        try {
+
+            $input = [
+                'data de venda' => $request->data_venda,
+                'valor unitário na venda' => str_replace(",", ".", str_replace(".", "", $request->valor_venda)),
+                'quantidade vendida' => $request->quantidade_venda
+            ];
+            $rules = [
+                'data de venda' => 'required|date',
+                'valor unitário na venda' => 'required',
+                'quantidade vendida' => 'required|integer'
+            ];
+            $validacao = Validator::make($input, $rules);
+            $validacao->validate();
+
+            $acao = InvestimentoAcao::find($id);
+
+            if ($acao->data_compra > $request->data_venda) {
+                return back()->with('erro', 'A data de venda não pode ser antes da data de compra (' . date('d/m/Y', strtotime($acao->data_compra)) . ')');
+            }
+
+            if ($acao->quantidade < $request->quantidade_venda) {
+                return back()->with('erro', 'A quantidade vendida não pode ser maior que a quantidade do cadastrada no ativo
+                (' . $acao->quantidade . ')');
+            }
+
+            $acao->data_venda = $request->data_venda;
+            $acao->valor_venda = str_replace(",", ".", str_replace(".", "", $request->valor_venda));
+            $acao->quantidade_venda = $request->quantidade_venda;
+            $acao->quantidade = $acao->quantidade - $request->quantidade;
+            $acao->save();
+
+            return back()->with('success', 'Cadastro marcado como vendido!');
+
+        } catch (\Exception $ex) {
+            return back()->with('erro', $ex->getMessage())->withInput();
+        }
+    }
+
+    /**
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\InvestimentoAcao  $investimentoAcao
@@ -187,7 +245,13 @@ class InvestimentoAcaoController extends Controller
     public function destroy(Request $request, $id)
     {
         try {
-            //code...
+
+            $acao = InvestimentoAcao::find($id);
+            $acao->ativo = 0;
+            $acao->save();
+
+            return back()->with('success', 'Cadastro excluído com sucesso.');
+
         } catch (\Exception $ex) {
             return back()->with('erro', $ex->getMessage())->withInput();
         }

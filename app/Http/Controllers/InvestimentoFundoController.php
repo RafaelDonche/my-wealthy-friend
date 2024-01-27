@@ -184,8 +184,18 @@ class InvestimentoFundoController extends Controller
      * @param  \App\Models\InvestimentoFundo  $investimentoFundo
      * @return \Illuminate\Http\Response
      */
-    public function destroy(InvestimentoFundo $investimentoFundo)
+    public function destroy(Request $request, $id)
     {
-        //
+        try {
+
+            $fundo = InvestimentoFundo::find($id);
+            $fundo->ativo = 0;
+            $fundo->save();
+
+            return back()->with('success', 'Cadastro excluído com sucesso.');
+
+        } catch (\Exception $ex) {
+            return back()->with('erro', $ex->getMessage())->withInput();
+        }
     }
 }

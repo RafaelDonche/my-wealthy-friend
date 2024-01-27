@@ -190,8 +190,18 @@ class InvestimentoCriptoController extends Controller
      * @param  \App\Models\InvestimentoCripto  $investimentoCripto
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        //
+        try {
+
+            $cripto = InvestimentoCripto::find($id);
+            $cripto->ativo = 0;
+            $cripto->save();
+
+            return back()->with('success', 'Cadastro excluído com sucesso.');
+
+        } catch (\Exception $ex) {
+            return back()->with('erro', $ex->getMessage())->withInput();
+        }
     }
 }

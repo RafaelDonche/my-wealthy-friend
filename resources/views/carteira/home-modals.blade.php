@@ -10,75 +10,114 @@
     }
 </style>
 
-<!-- Modals = editarAtivo -->
-@foreach ($todos as $t)
-    <div class="modal fade" id="editarAtivo{{ $t->id }}-{{ $t->ativo_info->id_tipo }}" tabindex="-1" role="dialog"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header modal-header-secondary">
-                    <h5 class="modal-title">Edite as informçações do seu ativo</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                @if ($t->ativo_info->id_tipo == 1)
-                    <form action="{{ route('carteira.acao.update', $t->id) }}" method="post">
-                @endif
-                @if ($t->ativo_info->id_tipo == 2)
-                    <form action="{{ route('carteira.fundo.update', $t->id) }}" method="post">
-                @endif
-                @if ($t->ativo_info->id_tipo == 3)
-                    <form action="{{ route('carteira.cripto.update', $t->id) }}" method="post">
-                @endif
-                @csrf
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-3 text-center">
-                            <img src="{{ $t->ativo_info->logo }}" width="65px" height="65px"
-                                alt="Logo do ativo para edição">
-                        </div>
-                        <div class="col-md-9 mb-2">
-                            <label class="form-label" for="ativo">Ativo a ser editado:</label>
-                            <select class="form-control select2" name="ativo" disabled required>
-                                <option value="{{ $t->id_ativo }}" selected>
-                                    {{ $t->ativo_info->sigla . ' - ' . $t->ativo_info->nome }}
-                                </option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label" for="corretora">Corretora</label>
-                            <input type="text" class="form-control" name="corretora" id="corretora"
-                                value="{{ $t->corretora }}">
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label" for="data_compra">Data de compra</label>
-                            <input type="date" class="form-control" name="data_compra" id="data_compra"
-                                value="{{ $t->data_compra }}" required>
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label" for="valor_unitario">Valor unitário (R$)</label>
-                            <input type="text" class="form-control valor_unitario" name="valor_unitario"
-                                id="valor_unitario" value="{{ $t->valor_unitario }}" required>
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label" for="quantidade">Quantidade</label>
-                            <input type="text" class="form-control" name="quantidade" id="quantidade"
-                                placeholder="quantidade até 5 casas decimais"
-                                value="{{ $t->ativo_info->id_tipo == 3 ? number_format($t->quantidade, 5, ',', '.') : intval($t->quantidade) }}"
-                                required>
-                        </div>
+<!-- Modal = editarAtivo -->
+<div class="modal fade" id="editarAtivo" tabindex="-1" role="dialog"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-header-secondary">
+                <h5 class="modal-title">Edite as informçações do seu ativo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="" id="form-update-ativo" method="post">
+            @csrf
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <img src="" id="img_logo_update" width="65px" height="65px"
+                            alt="Logo do ativo para edição">
+                    </div>
+                    <div class="col-md-9 mb-2">
+                        <label class="form-label" for="ativo">Ativo a ser editado:</label>
+                        <select class="form-control select2" name="ativo" id="select_update" disabled required></select>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label" for="corretora">Corretora</label>
+                        <input type="text" class="form-control" name="corretora" id="corretora_update"
+                            value="">
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label" for="data_compra">Data de compra</label>
+                        <input type="date" class="form-control" name="data_compra" id="data_compra_update"
+                            value="" required>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label" for="valor_unitario">Valor unitário (R$)</label>
+                        <input type="text" class="form-control valor_unitario" name="valor_unitario"
+                            id="valor_unitario_update" value="" required>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label" for="quantidade">Quantidade</label>
+                        <input class="form-control" name="quantidade" id="quantidade_update"
+                            placeholder="quantidade até 5 casas decimais"
+                            type=""
+                            value=""
+                            required>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                    <button type="submit" class="btn btn-primary">Salvar</button>
-                </div>
-                </form>
             </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </div>
+            </form>
         </div>
     </div>
-@endforeach
+</div>
+
+<!-- Modal = venderAtivo -->
+<div class="modal fade" id="venderAtivo" tabindex="-1" role="dialog"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-header-secondary">
+                <h5 class="modal-title">Edite as informçações do seu ativo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="" id="form-vender-ativo" method="post">
+            @csrf
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <img src="" id="img_logo_vender" width="65px" height="65px"
+                            alt="Logo do ativo para edição">
+                    </div>
+                    <div class="col-md-9 mb-2">
+                        <label class="form-label" for="ativo">Ativo a ser vendido:</label>
+                        <select class="form-control select2" name="ativo" id="select_vender" disabled required></select>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label class="form-label" for="data_venda">Data de venda</label>
+                        <input type="date" class="form-control" name="data_venda" id="data_venda_vender"
+                            value="" required>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label class="form-label" for="valor_venda">Valor unitário na venda (R$)</label>
+                        <input type="text" class="form-control valor_unitario" name="valor_venda"
+                            id="valor_venda" value="" required>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label class="form-label" for="quantidade_venda">Quantidade vendida</label>
+                        <input class="form-control" name="quantidade_venda" id="quantidade_vender"
+                            placeholder="quantidade até 5 casas decimais"
+                            type=""
+                            value=""
+                            required>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <!-- Modal = removerAtivo -->
 <div class="modal fade" id="removerAtivo" tabindex="-1" role="dialog" aria-hidden="true">
@@ -161,7 +200,7 @@
                         </div>
                         <div class="col-md-6 mb-2">
                             <label class="form-label" for="quantidade_acao">Quantas foram compradas?</label>
-                            <input type="text" class="form-control" name="quantidade_acao" id="quantidade_acao"
+                            <input type="number" class="form-control" name="quantidade_acao" id="quantidade_acao"
                                 placeholder="quantidade" required>
                         </div>
                     </div>
@@ -223,7 +262,7 @@
                         </div>
                         <div class="col-md-6 mb-2">
                             <label class="form-label" for="quantidade_fii">Quantos foram comprados?</label>
-                            <input type="text" class="form-control" name="quantidade_fii" id="quantidade_fii"
+                            <input type="number" class="form-control" name="quantidade_fii" id="quantidade_fii"
                                 placeholder="quantidade" required>
                         </div>
                     </div>
