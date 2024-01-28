@@ -5,7 +5,9 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InvestimentoAcaoCompraController;
 use App\Http\Controllers\InvestimentoAcaoController;
+use App\Http\Controllers\InvestimentoAcaoVendaController;
 use App\Http\Controllers\InvestimentoCriptoController;
 use App\Http\Controllers\InvestimentoFundoController;
 use Illuminate\Support\Facades\Route;
@@ -53,11 +55,24 @@ Route::group(['middleware' => 'auth'], function () {
         // investimento de ação
         Route::group(['prefix' => '/acao', 'as' => 'acao.'], function() {
             Route::get('/obterDados', [InvestimentoAcaoController::class, 'obterDados'])->name('obterDados');
+            Route::get('/obterDadosRendimento/{id_investimento}', [InvestimentoAcaoController::class, 'obterDadosRendimento'])->name('obterDadosRendimento');
             Route::post('/store', [InvestimentoAcaoController::class, 'store'])->name('store');
             Route::get('/show/{id}', [InvestimentoAcaoController::class, 'show'])->name('show');
             Route::post('/update/{id}', [InvestimentoAcaoController::class, 'update'])->name('update');
             Route::post('/vender/{id}', [InvestimentoAcaoController::class, 'vender'])->name('vender');
             Route::post('/destroy/{id}', [InvestimentoAcaoController::class, 'destroy'])->name('destroy');
+
+            Route::group(['prefix' => '/compra', 'as' => 'compra.'], function() {
+                Route::post('/store', [InvestimentoAcaoCompraController::class, 'store'])->name('store');
+                Route::post('/update/{id}', [InvestimentoAcaoCompraController::class, 'update'])->name('update');
+                Route::post('/destroy/{id}', [InvestimentoAcaoCompraController::class, 'destroy'])->name('destroy');
+            });
+
+            Route::group(['prefix' => '/venda', 'as' => 'venda.'], function() {
+                Route::post('/store', [InvestimentoAcaoVendaController::class, 'store'])->name('store');
+                Route::post('/update/{id}', [InvestimentoAcaoVendaController::class, 'update'])->name('update');
+                Route::post('/destroy/{id}', [InvestimentoAcaoVendaController::class, 'destroy'])->name('destroy');
+            });
         });
 
         // investimento de fundo

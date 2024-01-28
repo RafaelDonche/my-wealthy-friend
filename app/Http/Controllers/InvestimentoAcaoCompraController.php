@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\InvestimentoAcao;
-use App\Models\InvestimentoAcaoVenda;
+use App\Models\InvestimentoAcaoCompra;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
-class InvestimentoAcaoVendaController extends Controller
+class InvestimentoAcaoCompraController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -41,13 +41,13 @@ class InvestimentoAcaoVendaController extends Controller
         try {
             $input = [
                 'corretora' => $request->corretora,
-                'data de venda' => $request->data_venda,
+                'data de compra' => $request->data_compra,
                 'valor unitário' => str_replace(",", ".", str_replace(".", "", $request->valor_unitario)),
                 'quantidade' => $request->quantidade
             ];
             $rules = [
                 'corretora' => 'max:250',
-                'data de venda' => 'required|date',
+                'data de compra' => 'required|date',
                 'valor unitário' => 'required',
                 'quantidade' => 'required|integer'
             ];
@@ -60,18 +60,14 @@ class InvestimentoAcaoVendaController extends Controller
                 return back()->with('erro', 'O investimento não foi encontrado.');
             }
 
-            if ($investimento->quantidadeAtual() < $request->quantidade) {
-                return back()->with('erro', 'A quantidade inserida na venda não pode ser maior que a quantidade atual do seu investimento.');
-            }
-
-            $venda = new InvestimentoAcaoVenda();
-            $venda->data_venda = $request->data_venda;
-            $venda->quantidade = $request->quantidade;
-            $venda->valor_unitario = str_replace(",", ".", str_replace(".", "", $request->valor_unitario));
-            $venda->corretora = $request->corretora;
-            $venda->id_investimento = $investimento->id;
-            $venda->ativo = 1;
-            $venda->save();
+            $compra = new InvestimentoAcaoCompra();
+            $compra->data_compra = $request->data_compra_acao;
+            $compra->quantidade = $request->quantidade_acao;
+            $compra->valor_unitario = str_replace(",", ".", str_replace(".", "", $request->valor_unitario_acao));
+            $compra->corretora = $request->corretora_acao;
+            $compra->id_investimento = $investimento->id;
+            $compra->ativo = 1;
+            $compra->save();
 
             return back()->with('success', 'Cadastro realizado com sucesso.');
 
@@ -88,10 +84,10 @@ class InvestimentoAcaoVendaController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\InvestimentoAcaoVenda  $investimentoAcaoVenda
+     * @param  \App\Models\InvestimentoAcaoCompra  $investimentoAcaoCompra
      * @return \Illuminate\Http\Response
      */
-    public function show(InvestimentoAcaoVenda $investimentoAcaoVenda)
+    public function show(InvestimentoAcaoCompra $investimentoAcaoCompra)
     {
         //
     }
@@ -99,10 +95,10 @@ class InvestimentoAcaoVendaController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\InvestimentoAcaoVenda  $investimentoAcaoVenda
+     * @param  \App\Models\InvestimentoAcaoCompra  $investimentoAcaoCompra
      * @return \Illuminate\Http\Response
      */
-    public function edit(InvestimentoAcaoVenda $investimentoAcaoVenda)
+    public function edit(InvestimentoAcaoCompra $investimentoAcaoCompra)
     {
         //
     }
@@ -111,7 +107,7 @@ class InvestimentoAcaoVendaController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\InvestimentoAcaoVenda  $investimentoAcaoVenda
+     * @param  \App\Models\InvestimentoAcaoCompra  $investimentoAcaoCompra
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -119,30 +115,30 @@ class InvestimentoAcaoVendaController extends Controller
         try {
             $input = [
                 'corretora' => $request->corretora,
-                'data de venda' => $request->data_venda,
+                'data de compra' => $request->data_compra,
                 'valor unitário' => str_replace(",", ".", str_replace(".", "", $request->valor_unitario)),
                 'quantidade' => $request->quantidade
             ];
             $rules = [
                 'corretora' => 'max:250',
-                'data de venda' => 'required|date',
+                'data de compra' => 'required|date',
                 'valor unitário' => 'required',
                 'quantidade' => 'required|integer'
             ];
             $validacao = Validator::make($input, $rules);
             $validacao->validate();
 
-            $venda = InvestimentoAcaoVenda::where('ativo', 1)->where('id_user', auth()->user()->id)->find($id);
+            $compra = InvestimentoAcaoCompra::where('ativo', 1)->where('id_user', auth()->user()->id)->find($id);
 
-            if ($venda->investimento->id_user != auth()->user()->id) {
+            if (!$compra) {
                 return back()->with('error', 'O investimento não foi encontrado.');
             }
 
-            $venda->data_venda = $request->data_venda;
-            $venda->quantidade = $request->quantidade;
-            $venda->valor_unitario = str_replace(",", ".", str_replace(".", "", $request->valor_unitario));
-            $venda->corretora = $request->corretora;
-            $venda->save();
+            $compra->data_compra = $request->data_compra;
+            $compra->quantidade = $request->quantidade;
+            $compra->valor_unitario = str_replace(",", ".", str_replace(".", "", $request->valor_unitario));
+            $compra->corretora = $request->corretora;
+            $compra->save();
 
             return back()->with('success', 'Cadastro editado com sucesso.');
 
@@ -159,21 +155,21 @@ class InvestimentoAcaoVendaController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\InvestimentoAcaoVenda  $investimentoAcaoVenda
+     * @param  \App\Models\InvestimentoAcaoCompra  $investimentoAcaoCompra
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request, $id)
     {
         try {
 
-            $venda = InvestimentoAcaoVenda::find($id);
+            $compra = InvestimentoAcaoCompra::find($id);
 
-            if ($venda->investimento->id_user != auth()->user()->id) {
+            if ($compra->investimento->id_user != auth()->user()->id) {
                 return back()->with('error', 'Acesso negado.');
             }
 
-            $venda->ativo = 0;
-            $venda->save();
+            $compra->ativo = 0;
+            $compra->save();
 
             return back()->with('success', 'Cadastro excluído com sucesso.');
 

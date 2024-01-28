@@ -56,9 +56,23 @@
             font-size: 16px;
         }
 
-        .btn-editar {
+        .btn-action {
             border-radius: 20px;
             color: white !important;
+            background-color: #201f61;
+            border-color: transparent;
+        }
+
+        .btn-action:hover {
+            background-color: #121144;
+        }
+
+        .fa-trash {
+            color: rgb(138, 0, 0);
+        }
+
+        .fa-trash:hover {
+            color: rgb(105, 1, 1);
         }
 
         .float-end {
@@ -69,6 +83,14 @@
             font-size: 20px;
             /* font-weight: bold; */
         }
+
+        .my-card-header {
+            padding: 1.25rem 1.25rem 0 1.25rem;
+        }
+
+        .my-card-header .card-title {
+            font-size: 1rem;
+        }
     </style>
 
     <div class="container-fluid">
@@ -78,12 +100,11 @@
                     <img class="img-top" src="{{ $item->ativo_info->logo }}" alt="Logo">
                     <div class="w-100 mt-3">
                         <p class="sigla my-1">{{ $item->ativo_info->sigla }}</p>
-                        <p class="texto-logo my-1 text-left">Corretora: {{ $item->corretora }}</p>
-                        <p class="texto-logo my-1 text-left">Data da compra:
-                            {{ date('d/m/Y', strtotime($item->data_compra)) }}</p>
-                        <p class="texto-logo my-1 text-left">Valor unitário:
-                            {{ number_format($item->valor_unitario, 2, ',', '.') }}</p>
-                        <p class="texto-logo my-1 text-left">Quantidade: {{ $item->quantidade }}</p>
+                        <p class="texto-logo my-1 text-left">Data de cadastro:
+                            {{ date('d/m/Y', strtotime($item->created_at)) }}</p>
+                        <p class="texto-logo my-1 text-left">Saldo do ativo:
+                            R$ {{ number_format($item->valorAtual(), 2, ',', '.') }}</p>
+                        <p class="texto-logo my-1 text-left">Quantidade: {{ $item->quantidadeAtual() }}</p>
                     </div>
                 </div>
                 <div class="card card-empresa p-2">
@@ -99,20 +120,30 @@
             <div class="col-md-9 p-3">
                 <div class="row">
                     <div class="col-md-12 mb-2">
-                        <div class="float-end">
-                            <a class="btn btn-primary btn-sm btn-editar m-1">Vender</a>
-                            <a class="m-1">
-                                <i class="fas fa-pen fa-lg"></i>
-                            </a>
-                            <a class="m-1">
+                        <div class="float-end div-btns"
+                            nome="{{ $item->ativo_info->sigla.' - '.$item->ativo_info->nome }}"
+                            saldo="{{ number_format($item->valorAtual(), 2, ',', '.') }}"
+                            logo="{{ $item->ativo_info->logo }}"
+                            quantidade="{{ $item->quantidadeAtual() }}"
+                            idativo="{{ $item->id_ativo }}"
+                            type-quantidade="number">
+
+                            <a class="btn btn-sm btn-action my-1"
+                                rota="{{ route('carteira.acao.compra.store') }}" onclick="abrirModalComprar(this)">Comprar</a>
+                            <a class="btn btn-sm btn-action my-1"
+                                rota="{{ route('carteira.acao.venda.store') }}" onclick="abrirModalVender(this)">Vender</a>
+                            <a class="btn m-1" rota="{{ route('carteira.acao.destroy', $item->id) }}" onclick="abrirModalExcluir(this)">
                                 <i class="fas fa-trash fa-lg"></i>
                             </a>
                         </div>
                         <span class="title-rendimentos align-end">Seus rendimentos</span>
                     </div>
-                    <div class="col-md-12">
+                    <div class="col-md-12 mt-1">
+                        <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+                    </div>
+                    <div class="col-md-12 mt-3">
                         <div class="card">
-                            <div class="card-header">
+                            <div class="my-card-header">
                                 <h5 class="card-title mb-0">Vendas deste ativo</h5>
                             </div>
                             <div class="card-body">
@@ -178,28 +209,90 @@
             </div>
         </div>
     </div>
+
+    @include('carteira.home-modals')
+
 @endsection
 
 @section('scripts')
+    <script src="{{ asset('js/home/abrirModal.js') }}"></script>
+
     <script>
-        // axios.get(`{{ $rota_consulta }}`)
-        // .then(function (response) {
-
-        //     var result = response.data.results[0].summaryProfile;console.log(result);
-
-        //     $("#website_empresa").html("Website: " + result.website);
-        //     $("#cidade_empresa").html(result.country + " - " + result.city + "/" + result.state);
-        //     $(".card-body-empresa").html(result.longBusinessSummary);
-
-        // })
-        // .catch(function (error) {
-        //     console.error(error);
-        // });
-
         $(document).ready(function() {
+
+            // axios.get(`{{ $consulta_empresa }}`)
+            // .then(function (response) {
+
+            //     var summaryProfile = response.data.results[0].summaryProfile;
+
+            //     $("#website_empresa").html("Website: " + summaryProfile.website);
+            //     $("#cidade_empresa").html(summaryProfile.country + " - " + summaryProfile.city + "/" + summaryProfile.state);
+            //     $(".card-body-empresa").html(summaryProfile.longBusinessSummary);
+
+            // })
+            // .catch(function (error) {
+            //     console.error(error);
+            // });
+
+            axios.get(`{{ $consulta_grafico_rendimento }}`)
+            .then(function (response) {
+
+                console.log(response.data);
+
+            })
+            .catch(function (error) {
+                console.error(error);
+            });
+
+            const xValues = ["janeiro", "fevereiro", "março", "abril"];
+
+            new Chart("myChart", {
+                // type: "line",
+                // data: {
+                //     labels: xValues,
+                //     datasets: [{
+                //         data: [860, 1140, 1060, 1060],
+                //         borderColor: "red",
+                //         fill: false
+                //     }, {
+                //         data: [1600, 1700, 1700, 1900],
+                //         borderColor: "green",
+                //         fill: false
+                //     }, {
+                //         data: [300, 700, 2000, 5000],
+                //         borderColor: "blue",
+                //         fill: false
+                //     }]
+                // },
+                // options: {
+                //     legend: {
+                //         display: false
+                //     }
+                // }
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'First dataset',
+                        data: [0, 20, 40, 50]
+                    }],
+                    labels: ['January', 'February', 'March', 'April']
+                },
+                options: {
+                    scales: {
+                        y: {
+                            suggestedMin: 50,
+                            suggestedMax: 100
+                        }
+                    },
+
+                    legend: {
+                        display: false
+                    }
+                }
+            });
+
             $('#vendas-table').DataTable({
-                columnDefs: [
-                    {
+                columnDefs: [{
                         orderable: false,
                         targets: 1
                     },
@@ -216,11 +309,13 @@
                         targets: 4
                     }
                 ],
-                order: [[0, "asc"]],
+                order: [
+                    [0, "asc"]
+                ],
                 pageLength: 6,
-				lengthChange: false,
-				bFilter: false,
-				autoWidth: false,
+                lengthChange: false,
+                bFilter: false,
+                autoWidth: false,
                 oLanguage: {
                     // sLengthMenu: "Mostrar _MENU_ registros por página",
                     sZeroRecords: "Nenhum registro encontrado",

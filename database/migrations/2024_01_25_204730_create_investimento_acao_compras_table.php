@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateInvestimentoAcaoVendasTable extends Migration
+class CreateInvestimentoAcaoComprasTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class CreateInvestimentoAcaoVendasTable extends Migration
      */
     public function up()
     {
-        Schema::create('investimento_acao_vendas', function (Blueprint $table) {
+        Schema::create('investimento_acao_compras', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->date('data_venda');
+            $table->date('data_compra');
             $table->integer('quantidade');
             $table->decimal('valor_unitario', 20, 2);
             $table->string('corretora')->nullable();
@@ -33,6 +33,6 @@ class CreateInvestimentoAcaoVendasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('investimento_acao_vendas');
+        Schema::dropIfExists('investimento_acao_compras');
     }
 }

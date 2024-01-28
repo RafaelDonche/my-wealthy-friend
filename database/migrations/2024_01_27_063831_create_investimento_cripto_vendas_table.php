@@ -18,6 +18,7 @@ class CreateInvestimentoCriptoVendasTable extends Migration
             $table->date('data_venda');
             $table->decimal('quantidade', 15, 5);
             $table->decimal('valor_unitario', 20, 2);
+            $table->string('corretora')->nullable();
             $table->bigInteger('id_investimento')->unsigned();
             $table->foreign('id_investimento')->references('id')->on('investimento_criptos');
             $table->boolean('ativo');

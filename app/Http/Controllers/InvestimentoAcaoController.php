@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InvestimentoAcao;
+use App\Models\InvestimentoAcaoCompra;
 use App\Models\InvestimentoAcaoVenda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -11,26 +12,6 @@ use stdClass;
 
 class InvestimentoAcaoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
     /**
      * Retorna os dados para preecher o grafico.
      */
@@ -44,15 +25,15 @@ class InvestimentoAcaoController extends Controller
 
             $somaTotal = 0;
             foreach ($acoes as $a) {
-                $somaTotal = $somaTotal + ($a->valor_unitario*$a->quantidade);
+                $somaTotal = $somaTotal + $a->valorAtual();
             }
 
             $result = [];
             foreach ($acoes as $a) {
                 $result = new stdClass();
                 $result->nome = $a->ativo_info->sigla;
-                $result->valor = number_format(($a->valor_unitario*$a->quantidade), 2, ',', '.');
-                $porcentagem = (($a->valor_unitario*$a->quantidade) / $somaTotal) * 100;
+                $result->valor = number_format($a->valorAtual(), 2, ',', '.');
+                $porcentagem = ($a->valorAtual() / $somaTotal) * 100;
                 $result->porcentagem = number_format($porcentagem, 2);
 
                 array_push($arrayResult, $result);
@@ -69,6 +50,43 @@ class InvestimentoAcaoController extends Controller
                 'total' => number_format($somaTotal, 2, ',', '.'),
                 'somaTotalVendidas' => number_format($somaTotalVendidas, 2, ',', '.')
             ]);
+
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), 500);
+        }
+    }
+
+
+
+    /**
+     * Retorna os dados para preecher o grafico de rendimento.
+     */
+    public function obterDadosRendimento($id_investimento)
+    {
+        try {
+
+            $investimento = InvestimentoAcao::where('ativo', 1)->where('id_user', auth()->user()->id)->find($id_investimento);
+
+            if (!$investimento) {
+                return response()->json("Acesso negado.", 400);
+            }
+
+            $todos = InvestimentoAcaoCompra::select('investimento_acao_compras.*')
+                ->where('ativo', 1)
+                ->where('id_investimento', $id_investimento)
+                ->union(InvestimentoAcaoVenda::where('ativo', 1)->where('id_investimento', $id_investimento)->orderBy('data_venda'))
+                ->orderBy('data_compra')
+                ->get();
+
+            return response()->json($todos);
+
+            // $compras = InvestimentoAcaoCompra::where('ativo', 1)->where('id_investimento', $id_investimento)->orderBy('data_compra', 'asc')->get();
+            // $vendas = InvestimentoAcaoVenda::where('ativo', 1)->where('id_investimento', $id_investimento)->orderBy('data_venda', 'asc')->get();
+
+            // $arrayCompras = [];
+            // foreach ($compras as $c) {
+
+            // }
 
         } catch (\Exception $ex) {
             return response()->json($ex->getMessage(), 500);
@@ -101,16 +119,26 @@ class InvestimentoAcaoController extends Controller
             $validacao = Validator::make($input, $rules);
             $validacao->validate();
 
+            $verifica = InvestimentoAcao::where('id_ativo', $request->acao)->where('id_user', auth()->user()->id)->where('ativo', 1)->first();
+
+            if ($verifica) {
+                return back()->with('erro', 'Você já possui um investimento com este ativo.');
+            }
+
             $investimento = new InvestimentoAcao();
             $investimento->id_ativo = $request->acao;
-            $investimento->data_compra = $request->data_compra_acao;
-            $investimento->quantidade = $request->quantidade_acao;
-            $investimento->valor_unitario = str_replace(",", ".", str_replace(".", "", $request->valor_unitario_acao));
-            $investimento->corretora = $request->corretora_acao;
             $investimento->id_user = auth()->user()->id;
-            $investimento->vendido = 0;
             $investimento->ativo = 1;
             $investimento->save();
+
+            $compra = new InvestimentoAcaoCompra();
+            $compra->data_compra = $request->data_compra_acao;
+            $compra->quantidade = $request->quantidade_acao;
+            $compra->valor_unitario = str_replace(",", ".", str_replace(".", "", $request->valor_unitario_acao));
+            $compra->corretora = $request->corretora_acao;
+            $compra->id_investimento = $investimento->id;
+            $compra->ativo = 1;
+            $compra->save();
 
             return back()->with('success', 'Cadastro realizado com sucesso.');
 
@@ -140,124 +168,14 @@ class InvestimentoAcaoController extends Controller
                 return back()->with('erro', 'Este cadastro não está mais ativo.');
             }
 
-            $rota_consulta = route('api.obterDadosEmpresa', $item->ativo_info->sigla);
-
-            return view('carteira.investimento-acao', compact('item', 'rota_consulta'));
-
-        } catch (\Exception $ex) {
-            return back()->with('erro', $ex->getMessage())->withInput();
-        }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\InvestimentoAcao  $investimentoAcao
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(InvestimentoAcao $investimentoAcao)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\InvestimentoAcao  $investimentoAcao
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        try {
-            $input = [
-                'corretora' => $request->corretora,
-                'data de compra' => $request->data_compra,
-                'valor unitário' => str_replace(",", ".", str_replace(".", "", $request->valor_unitario)),
-                'quantidade' => $request->quantidade
-            ];
-            $rules = [
-                'corretora' => 'max:250',
-                'data de compra' => 'required|date',
-                'valor unitário' => 'required',
-                'quantidade' => 'required|integer'
-            ];
-            $validacao = Validator::make($input, $rules);
-            $validacao->validate();
-
-            $investimento = InvestimentoAcao::find($id);
-            $investimento->data_compra = $request->data_compra;
-            $investimento->quantidade = $request->quantidade;
-            $investimento->valor_unitario = str_replace(",", ".", str_replace(".", "", $request->valor_unitario));
-            $investimento->corretora = $request->corretora;
-            $investimento->save();
-
-            return back()->with('success', 'Cadastro editado com sucesso.');
-
-        }catch (ValidationException $e ) {
-            $message = $e->errors();
-            return redirect()->back()
-                ->withErrors($message)
-                ->withInput();
-        } catch (\Exception $ex) {
-            return back()->with('erro', $ex->getMessage())->withInput();
-        }
-    }
-
-    /**
-     * Cria uma venda para o investimento, subtrai a quantidade do investimento e marca como vendido se for o caso.
-     */
-    public function vender(Request $request, $id)
-    {
-        try {
-
-            $input = [
-                'data de venda' => $request->data_venda,
-                'valor unitário na venda' => str_replace(",", ".", str_replace(".", "", $request->valor_venda)),
-                'quantidade vendida' => $request->quantidade_venda
-            ];
-            $rules = [
-                'data de venda' => 'required|date',
-                'valor unitário na venda' => 'required',
-                'quantidade vendida' => 'required|integer'
-            ];
-            $validacao = Validator::make($input, $rules);
-            $validacao->validate();
-
-            // acha o investimento
-            $acao = InvestimentoAcao::find($id);
-
-            // data de venda não pode ser antes da data de compra
-            if ($acao->data_compra > $request->data_venda) {
-                return back()->with('erro', 'A data de venda não pode ser antes da data de compra (' . date('d/m/Y', strtotime($acao->data_compra)) . ')');
+            if ($item->id_user != auth()->user()->id) {
+                return back()->with('error', 'Acesso negado.');
             }
 
-            // quantidade de venda não pode ser maior que a quantidade do investimento
-            if ($acao->quantidade < $request->quantidade_venda) {
-                return back()->with('erro', 'A quantidade vendida não pode ser maior que a quantidade do cadastrada no ativo
-                (' . $acao->quantidade . ')');
-            }
+            $consulta_empresa = route('api.obterDadosEmpresa', $item->ativo_info->sigla);
+            $consulta_grafico_rendimento = route('carteira.acao.obterDadosRendimento', $item->id);
 
-            $quantidadeAtual = $acao->quantidade - $request->quantidade_venda;
-            $acao->quantidade = $quantidadeAtual;
-
-            // se após subtrair a quantidade o resultado for 0, então o investimento foi vendido
-            if ($quantidadeAtual == 0) {
-                $acao->vendido = true;
-            }
-
-            $acao->save();
-
-            // cadastra a venda do investimento
-            $venda = new InvestimentoAcaoVenda();
-            $venda->data_venda = $request->data_venda;
-            $venda->valor_unitario = str_replace(",", ".", str_replace(".", "", $request->valor_venda));
-            $venda->quantidade = $request->quantidade_venda;
-            $venda->id_investimento = $acao->id;
-            $venda->ativo = 1;
-            $venda->save();
-
-            return back()->with('success', 'Cadastro de venda realizado com sucesso!');
+            return view('carteira.investimento-acao', compact('item', 'consulta_empresa', 'consulta_grafico_rendimento'));
 
         } catch (\Exception $ex) {
             return back()->with('erro', $ex->getMessage())->withInput();
@@ -274,9 +192,14 @@ class InvestimentoAcaoController extends Controller
     {
         try {
 
-            $acao = InvestimentoAcao::find($id);
-            $acao->ativo = 0;
-            $acao->save();
+            $investimento = InvestimentoAcao::find($id);
+
+            if ($investimento->id_user != auth()->user()->id) {
+                return back()->with('error', 'Acesso negado.');
+            }
+
+            $investimento->ativo = 0;
+            $investimento->save();
 
             return back()->with('success', 'Cadastro excluído com sucesso.');
 

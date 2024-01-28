@@ -9,7 +9,7 @@ class InvestimentoCriptoVenda extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'data_venda', 'quantidade', 'valor_unitario', 'id_investimento', 'ativo'
+        'data_venda', 'quantidade', 'valor_unitario', 'corretora', 'id_investimento', 'ativo'
     ];
 
     protected $guarded = ['id', 'created_at', 'update_at'];
@@ -18,5 +18,9 @@ class InvestimentoCriptoVenda extends Model
 
     public function investimento() {
         return $this->hasOne(InvestimentoCripto::class, 'id', 'id_investimento');
+    }
+
+    public function saldo() {
+        return $this->valor_unitario * $this->quantidade;
     }
 }

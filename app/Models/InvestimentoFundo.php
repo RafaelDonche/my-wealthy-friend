@@ -9,7 +9,7 @@ class InvestimentoFundo extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'data_compra', 'data_venda', 'quantidade', 'valor_unitario', 'corretora', 'id_user', 'id_ativo', 'ativo'
+        'id_user', 'id_ativo', 'ativo'
     ];
 
     protected $guarded = ['id', 'created_at', 'update_at'];
@@ -24,7 +24,54 @@ class InvestimentoFundo extends Model
         return $this->hasOne(Ativo::class, 'id', 'id_ativo');
     }
 
+    public function compras() {
+        return $this->hasMany(InvestimentoFundoCompra::class, 'id_investimento', 'id')->where('ativo', 1);
+    }
+
     public function vendas() {
         return $this->hasMany(InvestimentoFundoVenda::class, 'id_investimento', 'id')->where('ativo', 1);
+    }
+
+    public function quantidadeComprada() {
+        $compras = $this->compras;
+
+        $soma = 0;
+        foreach ($compras as $c) {
+            $soma = $soma + $c->quantidade;
+        }
+
+        return $soma;
+    }
+
+    public function quantidadeVendida() {
+        $vendas = $this->vendas;
+
+        $soma = 0;
+        foreach ($vendas as $v) {
+            $soma = $soma + $v->quantidade;
+        }
+
+        return $soma;
+    }
+
+    public function quantidadeAtual() {
+        return $this->quantidadeComprada() - $this->quantidadeVendida();
+    }
+
+    public function valorAtual() {
+        $compras = $this->compras;
+        $vendas = $this->vendas;
+
+        $somaCompras = 0;
+        foreach ($compras as $c) {
+            $somaCompras = $somaCompras + $c->saldo();
+        }
+
+        $somaVendas = 0;
+        foreach ($vendas as $v) {
+            $somaVendas = $somaVendas + $v->saldo();
+        }
+
+        return $somaCompras - $somaVendas;
     }
 }

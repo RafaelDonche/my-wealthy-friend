@@ -18,6 +18,7 @@ class CreateInvestimentoFundoVendasTable extends Migration
             $table->date('data_venda');
             $table->integer('quantidade');
             $table->decimal('valor_unitario', 20, 2);
+            $table->string('corretora')->nullable();
             $table->bigInteger('id_investimento')->unsigned();
             $table->foreign('id_investimento')->references('id')->on('investimento_fundos');
             $table->boolean('ativo');

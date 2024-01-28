@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\InvestimentoFundo;
 use App\Models\InvestimentoFundoVenda;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class InvestimentoFundoVendaController extends Controller
 {
@@ -33,9 +36,53 @@ class InvestimentoFundoVendaController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, $id_investimento)
     {
-        //
+        try {
+            $input = [
+                'corretora' => $request->corretora,
+                'data de venda' => $request->data_venda,
+                'valor unitário' => str_replace(",", ".", str_replace(".", "", $request->valor_unitario)),
+                'quantidade' => $request->quantidade
+            ];
+            $rules = [
+                'corretora' => 'max:250',
+                'data de venda' => 'required|date',
+                'valor unitário' => 'required',
+                'quantidade' => 'required|integer'
+            ];
+            $validacao = Validator::make($input, $rules);
+            $validacao->validate();
+
+            $investimento = InvestimentoFundo::where('ativo', 1)->where('id_user', auth()->user()->id)->find($id_investimento);
+
+            if (!$investimento) {
+                return back()->with('erro', 'O investimento não foi encontrado.');
+            }
+
+            if ($investimento->quantidadeAtual() < $request->quantidade) {
+                return back()->with('erro', 'A quantidade inserida na venda não pode ser maior que a quantidade atual do seu investimento.');
+            }
+
+            $venda = new InvestimentoFundoVenda();
+            $venda->data_venda = $request->data_venda;
+            $venda->quantidade = $request->quantidade;
+            $venda->valor_unitario = str_replace(",", ".", str_replace(".", "", $request->valor_unitario));
+            $venda->corretora = $request->corretora;
+            $venda->id_investimento = $investimento->id;
+            $venda->ativo = 1;
+            $venda->save();
+
+            return back()->with('success', 'Cadastro realizado com sucesso.');
+
+        }catch (ValidationException $e ) {
+            $message = $e->errors();
+            return redirect()->back()
+                ->withErrors($message)
+                ->withInput();
+        } catch (\Exception $ex) {
+            return back()->with('erro', $ex->getMessage())->withInput();
+        }
     }
 
     /**
@@ -67,9 +114,46 @@ class InvestimentoFundoVendaController extends Controller
      * @param  \App\Models\InvestimentoFundoVenda  $investimentoFundoVenda
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, InvestimentoFundoVenda $investimentoFundoVenda)
+    public function update(Request $request, $id)
     {
-        //
+        try {
+            $input = [
+                'corretora' => $request->corretora,
+                'data de venda' => $request->data_venda,
+                'valor unitário' => str_replace(",", ".", str_replace(".", "", $request->valor_unitario)),
+                'quantidade' => $request->quantidade
+            ];
+            $rules = [
+                'corretora' => 'max:250',
+                'data de venda' => 'required|date',
+                'valor unitário' => 'required',
+                'quantidade' => 'required|integer'
+            ];
+            $validacao = Validator::make($input, $rules);
+            $validacao->validate();
+
+            $venda = InvestimentoFundoVenda::where('ativo', 1)->where('id_user', auth()->user()->id)->find($id);
+
+            if ($venda->investimento->id_user != auth()->user()->id) {
+                return back()->with('error', 'O investimento não foi encontrado.');
+            }
+
+            $venda->data_venda = $request->data_venda;
+            $venda->quantidade = $request->quantidade;
+            $venda->valor_unitario = str_replace(",", ".", str_replace(".", "", $request->valor_unitario));
+            $venda->corretora = $request->corretora;
+            $venda->save();
+
+            return back()->with('success', 'Cadastro editado com sucesso.');
+
+        }catch (ValidationException $e ) {
+            $message = $e->errors();
+            return redirect()->back()
+                ->withErrors($message)
+                ->withInput();
+        } catch (\Exception $ex) {
+            return back()->with('erro', $ex->getMessage())->withInput();
+        }
     }
 
     /**
@@ -78,8 +162,23 @@ class InvestimentoFundoVendaController extends Controller
      * @param  \App\Models\InvestimentoFundoVenda  $investimentoFundoVenda
      * @return \Illuminate\Http\Response
      */
-    public function destroy(InvestimentoFundoVenda $investimentoFundoVenda)
+    public function destroy(Request $request, $id)
     {
-        //
+        try {
+
+            $venda = InvestimentoFundoVenda::find($id);
+
+            if ($venda->investimento->id_user != auth()->user()->id) {
+                return back()->with('error', 'Acesso negado.');
+            }
+
+            $venda->ativo = 0;
+            $venda->save();
+
+            return back()->with('success', 'Cadastro excluído com sucesso.');
+
+        } catch (\Exception $ex) {
+            return back()->with('erro', $ex->getMessage())->withInput();
+        }
     }
 }

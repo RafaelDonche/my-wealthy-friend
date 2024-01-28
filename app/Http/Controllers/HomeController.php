@@ -15,15 +15,15 @@ class HomeController extends Controller
     public function index() {
         try {
 
-            $acoes = InvestimentoAcao::where('ativo', 1)->where('id_user', auth()->user()->id)->orderBy('data_compra', 'desc')->get();
-            $fiis = InvestimentoFundo::where('ativo', 1)->where('id_user', auth()->user()->id)->orderBy('data_compra', 'desc')->get();
-            $criptos = InvestimentoCripto::where('ativo', 1)->where('id_user', auth()->user()->id)->orderBy('data_compra', 'desc')->get();
+            $acoes = InvestimentoAcao::where('ativo', 1)->where('id_user', auth()->user()->id)->orderBy('created_at', 'desc')->get();
+            $fiis = InvestimentoFundo::where('ativo', 1)->where('id_user', auth()->user()->id)->orderBy('created_at', 'desc')->get();
+            $criptos = InvestimentoCripto::where('ativo', 1)->where('id_user', auth()->user()->id)->orderBy('created_at', 'desc')->get();
             $todos = InvestimentoAcao::select('investimento_acaos.*')
                 ->where('ativo', 1)
                 ->where('id_user', auth()->user()->id)
-                ->union(InvestimentoFundo::select('investimento_fundos.*')->where('ativo', 1)->where('id_user', auth()->user()->id))
-                ->union(InvestimentoCripto::select('investimento_criptos.*')->where('ativo', 1)->where('id_user', auth()->user()->id))
-                ->orderByDesc('data_compra')
+                ->union(InvestimentoFundo::where('ativo', 1)->where('id_user', auth()->user()->id))
+                ->union(InvestimentoCripto::where('ativo', 1)->where('id_user', auth()->user()->id))
+                ->orderByDesc('created_at')
                 ->get();
 
             $ativosAcoes = Ativo::where('id_tipo', 1)->get();
@@ -52,20 +52,20 @@ class HomeController extends Controller
 
             $somaAcoes = 0; // total das ações
             foreach ($acoes as $a) {
-                $somaTotal = $somaTotal + ($a->valor_unitario*$a->quantidade);
-                $somaAcoes = $somaAcoes + ($a->valor_unitario*$a->quantidade);
+                $somaTotal = $somaTotal + $a->valorAtual();
+                $somaAcoes = $somaAcoes + $a->valorAtual();
             }
 
             $somaFiis = 0; // total dos fundos
             foreach ($fiis as $f) {
-                $somaTotal = $somaTotal + ($f->valor_unitario*$f->quantidade);
-                $somaFiis = $somaFiis + ($f->valor_unitario*$f->quantidade);
+                $somaTotal = $somaTotal + $f->valorAtual();
+                $somaFiis = $somaFiis + $f->valorAtual();
             }
 
             $somaCriptos = 0; // total das criptos
             foreach ($criptos as $c) {
-                $somaTotal = $somaTotal + ($c->valor_unitario*$c->quantidade);
-                $somaCriptos = $somaCriptos + ($c->valor_unitario*$c->quantidade);
+                $somaTotal = $somaTotal + $c->valorAtual();
+                $somaCriptos = $somaCriptos + $c->valorAtual();
             }
 
             $arrayResult = [];

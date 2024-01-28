@@ -1,6 +1,6 @@
 function abrirModalEditar(element) {
 
-    var div = element.closest('.dropdown-menu');
+    var div = element.closest('.div-btns');
 
     let rota = element.getAttribute('rota');
     let logo = div.getAttribute('logo');
@@ -26,16 +26,40 @@ function abrirModalEditar(element) {
     return $('#editarAtivo').modal({ show: true });
 }
 
-function abrirModalVender(element) {
+function abrirModalComprar(element) {
 
-    var div = element.closest('.dropdown-menu');
+    var div = element.closest('.div-btns');
 
     let rota = element.getAttribute('rota');
     let logo = div.getAttribute('logo');
     let idAtivo = div.getAttribute('idativo');
     let nome = div.getAttribute('nome');
     let valor = div.getAttribute('valor');
-    let type = div.getAttribute('type-quantidade');console.log(type);
+    let type = div.getAttribute('type-quantidade');
+    let quantidade = div.getAttribute('quantidade');
+
+    $("#form-comprar-ativo").attr("action", rota);
+    $("#img_logo_comprar").attr("src", logo);
+    $("#select_comprar").append(
+        `<option value="` + idAtivo + `" selected>` + nome + `</option>`
+    );
+    $("#valor_unitario_comprar").val(valor);
+    $("#quantidade_comprar").attr("type", type);
+    $("#quantidade_comprar").val(quantidade);
+
+    return $('#comprarAtivo').modal({ show: true });
+}
+
+function abrirModalVender(element) {
+
+    var div = element.closest('.div-btns');
+
+    let rota = element.getAttribute('rota');
+    let logo = div.getAttribute('logo');
+    let idAtivo = div.getAttribute('idativo');
+    let nome = div.getAttribute('nome');
+    let valor = div.getAttribute('valor');
+    let type = div.getAttribute('type-quantidade');
     let quantidade = div.getAttribute('quantidade');
 
     $("#form-vender-ativo").attr("action", rota);
@@ -52,7 +76,7 @@ function abrirModalVender(element) {
 
 function abrirModalExcluir(element) {
 
-    var div = element.closest('.dropdown-menu');
+    var div = element.closest('.div-btns');
 
     let nome = div.getAttribute('nome');
     let saldo = div.getAttribute('saldo');

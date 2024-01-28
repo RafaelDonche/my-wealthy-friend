@@ -15,15 +15,10 @@ class CreateInvestimentoAcaosTable extends Migration
     {
         Schema::create('investimento_acaos', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->date('data_compra');
-            $table->integer('quantidade');
-            $table->decimal('valor_unitario', 20, 2);
-            $table->string('corretora')->nullable();
             $table->integer('id_user')->unsigned();
             $table->foreign('id_user')->references('id')->on('users');
             $table->integer('id_ativo')->unsigned();
             $table->foreign('id_ativo')->references('id')->on('ativos');
-            $table->boolean('vendido')->default(false);
             $table->boolean('ativo');
             $table->timestamps();
         });
