@@ -132,10 +132,14 @@ class InvestimentoAcaoVendaController extends Controller
             $validacao = Validator::make($input, $rules);
             $validacao->validate();
 
-            $venda = InvestimentoAcaoVenda::where('ativo', 1)->where('id_user', auth()->user()->id)->find($id);
+            $venda = InvestimentoAcaoVenda::where('ativo', 1)->find($id);
+
+            if (!$venda) {
+                return back()->with('erro', 'O investimento não foi encontrado.');
+            }
 
             if ($venda->investimento->id_user != auth()->user()->id) {
-                return back()->with('error', 'O investimento não foi encontrado.');
+                return back()->with('erro', 'O investimento não foi encontrado.');
             }
 
             $venda->data_venda = $request->data_venda;
@@ -169,13 +173,13 @@ class InvestimentoAcaoVendaController extends Controller
             $venda = InvestimentoAcaoVenda::find($id);
 
             if ($venda->investimento->id_user != auth()->user()->id) {
-                return back()->with('error', 'Acesso negado.');
+                return back()->with('erro', 'Acesso negado.');
             }
 
             $venda->ativo = 0;
             $venda->save();
 
-            return back()->with('success', 'Cadastro excluído com sucesso.');
+            return redirect()->route('carteira.home')->with('success', 'Cadastro excluído com sucesso.');
 
         } catch (\Exception $ex) {
             return back()->with('erro', $ex->getMessage())->withInput();

@@ -128,10 +128,20 @@ class InvestimentoFundoCompraController extends Controller
             $validacao = Validator::make($input, $rules);
             $validacao->validate();
 
-            $compra = InvestimentoFundoCompra::where('ativo', 1)->where('id_user', auth()->user()->id)->find($id);
+            $compra = InvestimentoFundoCompra::where('ativo', 1)->find($id);
 
             if (!$compra) {
-                return back()->with('error', 'O investimento não foi encontrado.');
+                return back()->with('erro', 'O investimento não foi encontrado.');
+            }
+
+            if ($compra->investimento->id_user != auth()->user()->id) {
+                return back()->with('erro', 'O investimento não foi encontrado.');
+            }
+
+            $investimento = InvestimentoFundo::find($compra->id_investimento);
+
+            if (($investimento->quantidadeAtual() - $request->quantidade) < 0) {
+                return back()->with('erro', 'Após a alteração, a quantidade de moedas do investimento não pode se menor que 0 (zero).');
             }
 
             $compra->data_compra = $request->data_compra;
@@ -165,13 +175,13 @@ class InvestimentoFundoCompraController extends Controller
             $compra = InvestimentoFundoCompra::find($id);
 
             if ($compra->investimento->id_user != auth()->user()->id) {
-                return back()->with('error', 'Acesso negado.');
+                return back()->with('erro', 'Acesso negado.');
             }
 
             $compra->ativo = 0;
             $compra->save();
 
-            return back()->with('success', 'Cadastro excluído com sucesso.');
+            return redirect()->route('carteira.home')->with('success', 'Cadastro excluído com sucesso.');
 
         } catch (\Exception $ex) {
             return back()->with('erro', $ex->getMessage())->withInput();

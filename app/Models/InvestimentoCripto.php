@@ -25,11 +25,11 @@ class InvestimentoCripto extends Model
     }
 
     public function compras() {
-        return $this->hasMany(InvestimentoCriptoCompra::class, 'id_investimento', 'id')->where('ativo', 1);
+        return $this->hasMany(InvestimentoCriptoCompra::class, 'id_investimento', 'id')->where('ativo', 1)->orderBy('data_compra');
     }
 
     public function vendas() {
-        return $this->hasMany(InvestimentoCriptoVenda::class, 'id_investimento', 'id')->where('ativo', 1);
+        return $this->hasMany(InvestimentoCriptoVenda::class, 'id_investimento', 'id')->where('ativo', 1)->orderBy('data_venda');
     }
 
     public function quantidadeComprada() {
@@ -58,20 +58,37 @@ class InvestimentoCripto extends Model
         return $this->quantidadeComprada() - $this->quantidadeVendida();
     }
 
-    public function valorAtual() {
+    // valor total de compras
+    public function saldoCompras() {
         $compras = $this->compras;
-        $vendas = $this->vendas;
 
         $somaCompras = 0;
         foreach ($compras as $c) {
             $somaCompras = $somaCompras + $c->saldo();
         }
 
+        return $somaCompras;
+    }
+
+    // valor total de vendas
+    public function saldoVendas() {
+        $vendas = $this->vendas;
+
         $somaVendas = 0;
         foreach ($vendas as $v) {
             $somaVendas = $somaVendas + $v->saldo();
         }
 
-        return $somaCompras - $somaVendas;
+        return $somaVendas;
+    }
+
+    public function saldoAtivo() {
+        return $this->saldoCompras() - $this->saldoVendas();
+    }
+
+    // quantiade atual * ultimo valor de fechamento do ativo
+    public function valorAtual() {
+        $valor_ativo = $this->ativo_info->ultimo_dia_historico()->valor_fechamento;
+        return $valor_ativo * $this->quantidadeAtual();
     }
 }

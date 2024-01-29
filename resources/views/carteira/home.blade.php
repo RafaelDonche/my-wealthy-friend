@@ -119,6 +119,10 @@
         .dropdown-menu:hover {
             cursor: pointer;
         }
+
+        .badge {
+            font-size: 1rem !important;
+        }
     </style>
 
     @include('errors.alerts')
@@ -169,39 +173,83 @@
                                 <input type="search" class="form-control text-center search-input" id="search-input-entrada" placeholder="Busque seu ativo...">
                             </div>
                             <div class="col-md-12 cards" id="cards-entrada">
-                                @foreach ($todos as $t)
+                                @foreach ($acoes as $a)
                                     <div class="card card-ativo my-2 px-2"
-                                        nome="{{ $t->ativo_info->sigla . ' - ' . $t->ativo_info->nome }}"
-                                        @if ($t->ativo_info->id_tipo == 1)
-                                            rota="{{ route('carteira.acao.show', $t->id) }}"
-                                        @endif
-                                        @if ($t->ativo_info->id_tipo == 2)
-                                            rota="{{ route('carteira.fundo.show', $t->id) }}"
-                                        @endif
-                                        @if ($t->ativo_info->id_tipo == 3)
-                                            rota="{{ route('carteira.cripto.show', $t->id) }}"
-                                        @endif
+                                        nome="{{ $a->ativo_info->sigla . ' - ' . $a->ativo_info->nome }}"
+                                        data={{ $a->created_at }}
+                                        rota="{{ route('carteira.acao.show', $a->id) }}"
                                         onclick="showInvestimento(this)">
                                         <div class="card-body row align-items-center">
                                             <div class="col-md-3 text-center col-img">
-                                                @if ($t->ativo_info->id_tipo == 3)
-                                                    <img class="img-cripto" src="{{ $t->ativo_info->logo }}" alt="Logo do ativo">
-                                                @else
-                                                    <img class="card-img-top" src="{{ $t->ativo_info->logo }}" alt="Logo do ativo">
-                                                @endif
+                                                <img class="card-img-top" src="{{ $a->ativo_info->logo }}" alt="Logo do ativo">
                                             </div>
                                             <div class="col-md-9 inner-body">
-                                                <h5 class="card-title text-center mb-0">{{ $t->ativo_info->sigla }} - {{ $t->ativo_info->nome }}</h5>
+                                                <h5 class="card-title text-center mb-0">{{ $a->ativo_info->sigla }} - {{ $a->ativo_info->nome }}</h5>
                                                 <p class="text-muted text-right">
-                                                    cadastrado em {{ date('d/m/Y', strtotime($t->created_at)) }}
+                                                    cadastrado em {{ date('d/m/Y', strtotime($a->created_at)) }}
                                                 </p>
-                                                <p class="mt-2 mb-0">Saldo do ativo: R$ {{ number_format($t->valorAtual(), 2, ',', '.') }}</p>
 
-                                                @if ($t->ativo_info->id_tipo == 3)
-                                                    <p class="m-0">Quantidade: {{ number_format($t->quantidadeAtual(), 5, ',', '.') }}</p>
-                                                @else
-                                                    <p class="m-0">Quantidade: {{ intval($t->quantidadeAtual()) }}</p>
-                                                @endif
+                                                <p class="mt-2 mb-0">
+                                                    Saldo do ativo:
+                                                    <span class="badge {{ $a->saldoAtivo() < 0 ? 'badge-danger' : 'badge-success' }}">
+                                                        R$ {{ number_format($a->saldoAtivo(), 2, ',', '.') }}
+                                                    </span>
+                                                </p>
+                                                <p class="m-0">Quantidade: {{ $a->quantidadeAtual() }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                                @foreach ($fiis as $f)
+                                    <div class="card card-ativo my-2 px-2"
+                                        nome="{{ $f->ativo_info->sigla . ' - ' . $f->ativo_info->nome }}"
+                                        data={{ $f->created_at }}
+                                        rota="{{ route('carteira.fundo.show', $f->id) }}"
+                                        onclick="showInvestimento(this)">
+                                        <div class="card-body row align-items-center">
+                                            <div class="col-md-3 text-center col-img">
+                                                <img class="card-img-top" src="{{ $f->ativo_info->logo }}" alt="Logo do FII">
+                                            </div>
+                                            <div class="col-md-9 inner-body">
+                                                <h5 class="card-title text-center mb-0">{{ $f->ativo_info->sigla }} - {{ $f->ativo_info->nome }}</h5>
+                                                <p class="text-muted text-right">
+                                                    cadastrado em {{ date('d/m/Y', strtotime($f->created_at)) }}
+                                                </p>
+
+                                                <p class="mt-2 mb-0">
+                                                    Saldo do ativo:
+                                                    <span class="badge {{ $f->saldoAtivo() < 0 ? 'badge-danger' : 'badge-success' }}">
+                                                        R$ {{ number_format($f->saldoAtivo(), 2, ',', '.') }}
+                                                    </span>
+                                                </p>
+                                                <p class="m-0">Quantidade: {{ $f->quantidadeAtual() }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                                @foreach ($criptos as $c)
+                                    <div class="card card-ativo my-2 px-2"
+                                        nome="{{ $c->ativo_info->sigla . ' - ' . $c->ativo_info->nome }}"
+                                        data={{ $c->created_at }}
+                                        rota="{{ route('carteira.cripto.show', $c->id) }}"
+                                        onclick="showInvestimento(this)">
+                                        <div class="card-body row align-items-center">
+                                            <div class="col-md-3 text-center col-img">
+                                                <img class="img-cripto" src="{{ $c->ativo_info->logo }}" alt="Logo da criptomoeda">
+                                            </div>
+                                            <div class="col-md-9 inner-body">
+                                                <h5 class="card-title text-center mb-0">{{ $c->ativo_info->sigla }} - {{ $c->ativo_info->nome }}</h5>
+                                                <p class="text-muted text-right">
+                                                    cadastrado em {{ date('d/m/Y', strtotime($c->created_at)) }}
+                                                </p>
+
+                                                <p class="mt-2 mb-0">
+                                                    Saldo do ativo:
+                                                    <span class="badge {{ $c->saldoAtivo() < 0 ? 'badge-danger' : 'badge-success' }}">
+                                                        R$ {{ number_format($c->saldoAtivo(), 2, ',', '.') }}
+                                                    </span>
+                                                </p>
+                                                <p class="m-0">Quantidade: {{ $c->quantidadeAtual() }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -268,7 +316,13 @@
                                                 <p class="text-muted text-right">
                                                     cadastrado em {{ date('d/m/Y', strtotime($a->created_at)) }}
                                                 </p>
-                                                <p class="mt-2 mb-0">Saldo do ativo: R$ {{ number_format($a->valorAtual(), 2, ',', '.') }}</p>
+
+                                                <p class="mt-2 mb-0">
+                                                    Saldo do ativo:
+                                                    <span class="badge {{ $a->saldoAtivo() < 0 ? 'badge-danger' : 'badge-success' }}">
+                                                        R$ {{ number_format($a->saldoAtivo(), 2, ',', '.') }}
+                                                    </span>
+                                                </p>
                                                 <p class="m-0">Quantidade: {{ $a->quantidadeAtual() }}</p>
                                             </div>
                                         </div>
@@ -331,7 +385,7 @@
                                 @foreach ($fiis as $f)
                                     <div class="card card-ativo my-2 px-2"
                                         nome="{{ $f->ativo_info->sigla . ' - ' . $f->ativo_info->nome }}"
-                                        rota="{{ route('carteira.fundo.show', $a->id) }}"
+                                        rota="{{ route('carteira.fundo.show', $f->id) }}"
                                         onclick="showInvestimento(this)">
                                         <div class="card-body row align-items-center">
                                             <div class="col-md-3 text-center col-img">
@@ -342,7 +396,13 @@
                                                 <p class="text-muted text-right">
                                                     cadastrado em {{ date('d/m/Y', strtotime($f->created_at)) }}
                                                 </p>
-                                                <p class="mt-2 mb-0">Saldo do ativo: R$ {{ number_format($f->valorAtual(), 2, ',', '.') }}</p>
+
+                                                <p class="mt-2 mb-0">
+                                                    Saldo do ativo:
+                                                    <span class="badge {{ $f->saldoAtivo() < 0 ? 'badge-danger' : 'badge-success' }}">
+                                                        R$ {{ number_format($f->saldoAtivo(), 2, ',', '.') }}
+                                                    </span>
+                                                </p>
                                                 <p class="m-0">Quantidade: {{ $f->quantidadeAtual() }}</p>
                                             </div>
                                         </div>
@@ -405,7 +465,7 @@
                                 @foreach ($criptos as $c)
                                     <div class="card card-ativo my-2 px-2"
                                         nome="{{ $c->ativo_info->sigla . ' - ' . $c->ativo_info->nome }}"
-                                        rota="{{ route('carteira.cripto.show', $a->id) }}"
+                                        rota="{{ route('carteira.cripto.show', $c->id) }}"
                                         onclick="showInvestimento(this)">
                                         <div class="card-body row align-items-center">
                                             <div class="col-md-3 text-center col-img">
@@ -414,9 +474,15 @@
                                             <div class="col-md-9 inner-body">
                                                 <h5 class="card-title text-center mb-0">{{ $c->ativo_info->sigla }} - {{ $c->ativo_info->nome }}</h5>
                                                 <p class="text-muted text-right">
-                                                    cadastrado em {{ date('d/m/Y', strtotime($t->created_at)) }}
+                                                    cadastrado em {{ date('d/m/Y', strtotime($c->created_at)) }}
                                                 </p>
-                                                <p class="mt-2 mb-0">Saldo do ativo: R$ {{ number_format($c->valorAtual(), 2, ',', '.') }}</p>
+
+                                                <p class="mt-2 mb-0">
+                                                    Saldo do ativo:
+                                                    <span class="badge {{ $c->saldoAtivo() < 0 ? 'badge-danger' : 'badge-success' }}">
+                                                        R$ {{ number_format($c->saldoAtivo(), 2, ',', '.') }}
+                                                    </span>
+                                                </p>
                                                 <p class="m-0">Quantidade: {{ $c->quantidadeAtual() }}</p>
                                             </div>
                                         </div>
@@ -473,198 +539,14 @@
         </div>
     </div>
 
-    <!-- Modal = adicionarAcao -->
-    <div class="modal fade" id="adicionarAcao" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Insira as informações para cadastrar</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form action="{{ route('carteira.acao.store') }}" method="post">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-3 text-center">
-                                <img src="{{ asset('assets/selecione-um-ativo.png') }}" id="img_logo_acao"
-                                    width="65px" height="65px" alt="Logo da ação selecionada">
-                            </div>
-                            <div class="col-md-9 mb-2">
-                                <label class="form-label" for="acao">Selecione a ação:</label>
-                                <select class="form-control select2" name="acao" id="acao" required>
-                                    <option></option>
-                                    @foreach ($ativosAcoes as $aa)
-                                        <option value="{{ $aa->id }}" logourl="{{ $aa->logo }}"
-                                            valor="{{ number_format($aa->historico[0]->valor_fechamento, 2, ',', '.') }}">
-                                            {{ $aa->sigla . ' - ' . $aa->nome }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label" for="corretora_acao">Qual corretora utilizou?</label>
-                                <input type="text" class="form-control" name="corretora_acao" id="corretora_acao"
-                                    placeholder="Rico, Toro, Itaú...">
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label" for="data_compra_acao">Quando realizou a compra?</label>
-                                <input type="date" class="form-control" name="data_compra_acao" id="data_compra_acao"
-                                    required>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label" for="valor_unitario_acao">Qual foi o valor unitário na compra?
-                                    (R$)</label>
-                                <input type="text" class="form-control valor_unitario" name="valor_unitario_acao"
-                                    id="valor_unitario_acao" placeholder="valor unítário" required>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label" for="quantidade_acao">Quantas foram compradas?</label>
-                                <input type="number" class="form-control" name="quantidade_acao" id="quantidade_acao"
-                                    placeholder="quantidade" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                        <button type="submit" class="btn btn-primary">Adicionar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal = adicionarFii -->
-    <div class="modal fade" id="adicionarFii" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Insira as informações para cadastrar</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form action="{{ route('carteira.fundo.store') }}" method="post">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-3 text-center">
-                                <img src="{{ asset('assets/selecione-um-ativo.png') }}" id="img_logo_fii" width="65px"
-                                    height="65px" alt="Logo do FII selecionada">
-                            </div>
-                            <div class="col-md-9 mb-2">
-                                <label class="form-label" for="fii">Selecione o FII:</label>
-                                <select class="form-control select2" name="fii" id="fii" required>
-                                    <option></option>
-                                    @foreach ($ativosFiis as $af)
-                                        <option value="{{ $af->id }}" logourl="{{ $af->logo }}"
-                                            valor="{{ number_format($af->historico[0]->valor_fechamento, 2, ',', '.') }}">
-                                            {{ $af->sigla . ' - ' . $af->nome }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label" for="corretora_fii">Qual corretora utilizou?</label>
-                                <input type="text" class="form-control" name="corretora_fii" id="corretora_fii"
-                                    placeholder="Rico, XP, Mobills...">
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label" for="data_compra_fii">Quando realizou a compra?</label>
-                                <input type="date" class="form-control" name="data_compra_fii" id="data_compra_fii"
-                                    required>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label" for="valor_unitario_fii">Qual foi o valor unitário na compra?
-                                    (R$)</label>
-                                <input type="text" class="form-control valor_unitario" name="valor_unitario_fii"
-                                    id="valor_unitario_fii" placeholder="valor unítário" required>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label" for="quantidade_fii">Quantos foram comprados?</label>
-                                <input type="number" class="form-control" name="quantidade_fii" id="quantidade_fii"
-                                    placeholder="quantidade" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                        <button type="submit" class="btn btn-primary">Adicionar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal = adicionarCripto -->
-    <div class="modal fade" id="adicionarCripto" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Insira as informações para cadastrar</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form action="{{ route('carteira.cripto.store') }}" method="post">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-3 text-center">
-                                <img src="{{ asset('assets/selecione-um-ativo.png') }}" id="img_logo_cripto"
-                                    width="65px" height="65px" alt="Logo da cripto selecionada">
-                            </div>
-                            <div class="col-md-9 mb-2">
-                                <label class="form-label" for="cripto">Selecione a criptomoeda:</label>
-                                <select class="form-control select2" name="cripto" id="cripto" required>
-                                    <option></option>
-                                    @foreach ($ativosCriptos as $ac)
-                                        <option value="{{ $ac->id }}" logourl="{{ $ac->logo }}"
-                                            valor="{{ number_format($ac->historico[0]->valor_fechamento, 2, ',', '.') }}">
-                                            {{ $ac->sigla . ' - ' . $ac->nome }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label" for="corretora_cripto">Qual corretora utilizou?</label>
-                                <input type="text" class="form-control" name="corretora_cripto" id="corretora_cripto"
-                                    placeholder="Binance, Foxbit, BitcoinTrade...">
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label" for="data_compra_cripto">Quando realizou a compra?</label>
-                                <input type="date" class="form-control" name="data_compra_cripto"
-                                    id="data_compra_cripto" required>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label" for="valor_unitario_cripto">Qual era o valor da moeda na compra?
-                                    (R$)</label>
-                                <input type="text" class="form-control valor_unitario" name="valor_unitario_cripto"
-                                    id="valor_unitario_cripto" placeholder="valor unítário" required>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label" for="quantidade_cripto">Quantas foram compradas?</label>
-                                <input type="text" class="form-control" name="quantidade_cripto"
-                                    id="quantidade_cripto" placeholder="quantidade até 5 casas decimais" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                        <button type="submit" class="btn btn-primary">Adicionar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    @include('carteira.home-modals')
 
 @endsection
 
 @section('scripts')
     <script src="{{ asset('js/home/busca.js') }}"></script>
     <script src="{{ asset('js/home/select.js') }}"></script>
-    <script src="{{ asset('js/home/abrirModal.js') }}"></script>
+    <script src="{{ asset('js/home/ordenarDivs.js') }}"></script>
 
     <script>
         $('.valor_unitario').mask('000.000.000,00', { reverse: true });
@@ -683,6 +565,8 @@
         }
 
         document.addEventListener("DOMContentLoaded", function() {
+
+            orderDesc("#cards-entrada", "data");
 
             $('.select2').select2({
                 language: {

@@ -61,10 +61,10 @@ class InvestimentoAcaoCompraController extends Controller
             }
 
             $compra = new InvestimentoAcaoCompra();
-            $compra->data_compra = $request->data_compra_acao;
-            $compra->quantidade = $request->quantidade_acao;
-            $compra->valor_unitario = str_replace(",", ".", str_replace(".", "", $request->valor_unitario_acao));
-            $compra->corretora = $request->corretora_acao;
+            $compra->data_compra = $request->data_compra;
+            $compra->quantidade = $request->quantidade;
+            $compra->valor_unitario = str_replace(",", ".", str_replace(".", "", $request->valor_unitario));
+            $compra->corretora = $request->corretora;
             $compra->id_investimento = $investimento->id;
             $compra->ativo = 1;
             $compra->save();
@@ -128,10 +128,20 @@ class InvestimentoAcaoCompraController extends Controller
             $validacao = Validator::make($input, $rules);
             $validacao->validate();
 
-            $compra = InvestimentoAcaoCompra::where('ativo', 1)->where('id_user', auth()->user()->id)->find($id);
+            $compra = InvestimentoAcaoCompra::where('ativo', 1)->find($id);
 
             if (!$compra) {
-                return back()->with('error', 'O investimento não foi encontrado.');
+                return back()->with('erro', 'O investimento não foi encontrado.');
+            }
+
+            $investimento = InvestimentoAcao::find($compra->id_investimento);
+
+            if ($investimento->id_user != auth()->user()->id) {
+                return back()->with('erro', 'Acesso negado.');
+            }
+
+            if (($investimento->quantidadeAtual() - $request->quantidade) < 0) {
+                return back()->with('erro', 'Após a alteração, a quantidade de unidades do investimento não pode se menor que 0 (zero).');
             }
 
             $compra->data_compra = $request->data_compra;
@@ -165,13 +175,13 @@ class InvestimentoAcaoCompraController extends Controller
             $compra = InvestimentoAcaoCompra::find($id);
 
             if ($compra->investimento->id_user != auth()->user()->id) {
-                return back()->with('error', 'Acesso negado.');
+                return back()->with('erro', 'Acesso negado.');
             }
 
             $compra->ativo = 0;
             $compra->save();
 
-            return back()->with('success', 'Cadastro excluído com sucesso.');
+            return redirect()->route('carteira.home')->with('success', 'Cadastro excluído com sucesso.');
 
         } catch (\Exception $ex) {
             return back()->with('erro', $ex->getMessage())->withInput();

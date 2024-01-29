@@ -17,13 +17,14 @@
         <link rel="stylesheet" href="{{ asset('css/fontawesome.css') }}">
         <link rel="stylesheet" href="{{ asset('css/style.css') }}">
         <link href="{{ asset('select2-4.1.0/dist/css/select2.min.css') }}" rel="stylesheet" />
-        <link href="https://cdn.datatables.net/v/dt/dt-1.13.8/datatables.min.css" rel="stylesheet">
+        <link href="https://cdn.datatables.net/v/bs4/dt-1.13.8/r-2.5.0/datatables.min.css" rel="stylesheet">
 
         <style>
             body {
                 font-family: 'Poppins', sans-serif !important;
                 width: 100% !important;
                 height: 100vh !important;
+                background-color: rgba(236, 236, 236, 0.37);
             }
 
             .navbar-nav .nav-link {
@@ -45,7 +46,7 @@
 
     <body>
 
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <nav class="navbar navbar-expand-lg">
             <a class="navbar-brand text-center" href="{{ route('carteira.home') }}">
                 <img src="{{ asset('assets/name-fundo-transparente-300x40.png') }}"  alt="Logo" width="80%" height="80%">
             </a>
@@ -91,7 +92,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
     <script src="{{ asset('select2-4.1.0/dist/js/select2.min.js') }}"></script>
     <script src="{{ asset('js/jQuery-Mask-Plugin-master/dist/jquery.mask.min.js') }}"></script>
-    <script src="https://cdn.datatables.net/v/dt/dt-1.13.8/datatables.min.js"></script>
+    <script src="https://cdn.datatables.net/v/bs4/dt-1.13.8/r-2.5.0/datatables.min.js"></script>
 
     @yield('scripts')
 

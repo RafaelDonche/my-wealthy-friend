@@ -49,9 +49,12 @@ class InvestimentoCriptoCompraController extends Controller
                 'corretora' => 'max:250',
                 'data de compra' => 'required|date',
                 'valor unitário' => 'required',
-                'quantidade' => 'required|integer'
+                'quantidade' => 'required|numeric|regex:/^\d{1,15}(\.\d{0,5})?$/'
             ];
-            $validacao = Validator::make($input, $rules);
+            $messages = [
+                'quantidade.regex' => "A 'quantidade' no cadastro da criptomoeda deve ter no máximo 15 dígitos a esquerda da vírgula e no máximo 5 a direita!"
+            ];
+            $validacao = Validator::make($input, $rules, $messages);
             $validacao->validate();
 
             $investimento = InvestimentoCripto::where('ativo', 1)->where('id_user', auth()->user()->id)->find($id_investimento);
@@ -123,15 +126,28 @@ class InvestimentoCriptoCompraController extends Controller
                 'corretora' => 'max:250',
                 'data de compra' => 'required|date',
                 'valor unitário' => 'required',
-                'quantidade' => 'required|integer'
+                'quantidade' => 'required|numeric|regex:/^\d{1,15}(\.\d{0,5})?$/'
             ];
-            $validacao = Validator::make($input, $rules);
+            $messages = [
+                'quantidade.regex' => "A 'quantidade' no cadastro da criptomoeda deve ter no máximo 15 dígitos a esquerda da vírgula e no máximo 5 a direita!"
+            ];
+            $validacao = Validator::make($input, $rules, $messages);
             $validacao->validate();
 
-            $compra = InvestimentoCriptoCompra::where('ativo', 1)->where('id_user', auth()->user()->id)->find($id);
+            $compra = InvestimentoCriptoCompra::where('ativo', 1)->find($id);
 
             if (!$compra) {
-                return back()->with('error', 'O investimento não foi encontrado.');
+                return back()->with('erro', 'O investimento não foi encontrado.');
+            }
+
+            $investimento = InvestimentoCripto::find($compra->id_investimento);
+
+            if ($investimento->id_user != auth()->user()->id) {
+                return back()->with('erro', 'Acesso negado.');
+            }
+
+            if (($investimento->quantidadeAtual() - str_replace(",", ".", str_replace(".", "", $request->quantidade))) < 0) {
+                return back()->with('erro', 'Após a alteração, a quantidade de unidades do investimento não pode se menor que 0 (zero).');
             }
 
             $compra->data_compra = $request->data_compra;
@@ -165,13 +181,13 @@ class InvestimentoCriptoCompraController extends Controller
             $compra = InvestimentoCriptoCompra::find($id);
 
             if ($compra->investimento->id_user != auth()->user()->id) {
-                return back()->with('error', 'Acesso negado.');
+                return back()->with('erro', 'Acesso negado.');
             }
 
             $compra->ativo = 0;
             $compra->save();
 
-            return back()->with('success', 'Cadastro excluído com sucesso.');
+            return redirect()->route('carteira.home')->with('success', 'Cadastro excluído com sucesso.');
 
         } catch (\Exception $ex) {
             return back()->with('erro', $ex->getMessage())->withInput();

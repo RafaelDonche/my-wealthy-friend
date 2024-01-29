@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\InvestimentoFundo;
 use App\Models\InvestimentoFundoCompra;
 use App\Models\InvestimentoFundoVenda;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -45,15 +46,15 @@ class InvestimentoFundoController extends Controller
 
             $somaTotal = 0;
             foreach ($fundos as $f) {
-                $somaTotal = $somaTotal + $f->valorAtual();
+                $somaTotal = $somaTotal + $f->saldoAtivo();
             }
 
             $result = [];
             foreach ($fundos as $f) {
                 $result = new stdClass();
                 $result->nome = $f->ativo_info->sigla;
-                $result->valor = number_format($f->valorAtual(), 2, ',', '.');
-                $porcentagem = ($f->valorAtual() / $somaTotal) * 100;
+                $result->valor = number_format($f->saldoAtivo(), 2, ',', '.');
+                $porcentagem = ($f->saldoAtivo() / $somaTotal) * 100;
                 $result->porcentagem = number_format($porcentagem, 2);
 
                 array_push($arrayResult, $result);
@@ -69,6 +70,64 @@ class InvestimentoFundoController extends Controller
                 'dados' => $arrayResult,
                 'total' => number_format($somaTotal, 2, ',', '.'),
                 'somaTotalVendidas' => number_format($somaTotalVendidas, 2, ',', '.')
+            ]);
+
+        } catch (\Exception $ex) {
+            return response()->json($ex->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Retorna os dados para preecher o grafico de rendimento.
+     */
+    public function obterDadosRendimento($id_investimento)
+    {
+        try {
+
+            $investimento = InvestimentoFundo::where('ativo', 1)->where('id_user', auth()->user()->id)->find($id_investimento);
+
+            if (!$investimento) {
+                return response()->json("Acesso negado.", 400);
+            }
+
+            $compras = InvestimentoFundoCompra::where('ativo', 1)->where('id_investimento', $id_investimento)->orderBy('data_compra')->get();
+            $vendas = InvestimentoFundoVenda::where('ativo', 1)->where('id_investimento', $id_investimento)->orderBy('data_venda')->get();
+
+            $minData = null;
+            $dataCompras = [];
+            $valorCompras = [];
+            foreach ($compras as $c) {
+
+                if ($c == $compras[0]) {
+                    $data = Carbon::create($c->data_compra)->subDay();
+                    $minData = $data->isoFormat('DD/MM/YY');
+                    array_push($dataCompras, $minData);
+                    array_push($valorCompras, 0);
+                }
+
+                array_push($dataCompras, date('d/m/y', strtotime($c->data_compra)));
+                array_push($valorCompras, $c->saldo());
+            }
+
+            $dataVendas = [];
+            $valorVendas = [];
+            foreach ($vendas as $v) {
+                if ($v == $vendas[0]) {
+                    $data = Carbon::create($v->data_venda)->subDay();
+                    $minData = $data->isoFormat('DD/MM/YY');
+                    array_push($dataVendas, $minData);
+                    array_push($valorVendas, 0);
+                }
+
+                array_push($dataVendas, date('d/m/y', strtotime($v->data_venda)));
+                array_push($valorVendas, $v->saldo());
+            }
+
+            return response()->json([
+                'dataCompras' => $dataCompras,
+                'valorCompras' => $valorCompras,
+                'dataVendas' => $dataVendas,
+                'valorVendas' => $valorVendas
             ]);
 
         } catch (\Exception $ex) {
@@ -152,12 +211,13 @@ class InvestimentoFundoController extends Controller
             }
 
             if ($item->id_user != auth()->user()->id) {
-                return back()->with('error', 'Acesso negado.');
+                return back()->with('erro', 'Acesso negado.');
             }
 
-            $rota_consulta = route('api.obterDadosEmpresa', $item->ativo_info->sigla);
+            $consulta_empresa = route('api.obterDadosEmpresa', $item->ativo_info->sigla);
+            $consulta_grafico_rendimento = route('carteira.fundo.obterDadosRendimento', $item->id);
 
-            return view('carteira.investimento-fundo', compact('item', 'rota_consulta'));
+            return view('carteira.investimento-fundo.home', compact('item', 'consulta_empresa', 'consulta_grafico_rendimento'));
 
         } catch (\Exception $ex) {
             return back()->with('erro', $ex->getMessage())->withInput();
@@ -200,13 +260,13 @@ class InvestimentoFundoController extends Controller
             $investimento = InvestimentoFundo::find($id);
 
             if ($investimento->id_user != auth()->user()->id) {
-                return back()->with('error', 'Acesso negado.');
+                return back()->with('erro', 'Acesso negado.');
             }
 
             $investimento->ativo = 0;
             $investimento->save();
 
-            return back()->with('success', 'Cadastro excluído com sucesso.');
+            return redirect()->route('carteira.home')->with('success', 'Cadastro excluído com sucesso.');
 
         } catch (\Exception $ex) {
             return back()->with('erro', $ex->getMessage())->withInput();

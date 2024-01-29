@@ -15,22 +15,15 @@ class HomeController extends Controller
     public function index() {
         try {
 
-            $acoes = InvestimentoAcao::where('ativo', 1)->where('id_user', auth()->user()->id)->orderBy('created_at', 'desc')->get();
-            $fiis = InvestimentoFundo::where('ativo', 1)->where('id_user', auth()->user()->id)->orderBy('created_at', 'desc')->get();
-            $criptos = InvestimentoCripto::where('ativo', 1)->where('id_user', auth()->user()->id)->orderBy('created_at', 'desc')->get();
-            $todos = InvestimentoAcao::select('investimento_acaos.*')
-                ->where('ativo', 1)
-                ->where('id_user', auth()->user()->id)
-                ->union(InvestimentoFundo::where('ativo', 1)->where('id_user', auth()->user()->id))
-                ->union(InvestimentoCripto::where('ativo', 1)->where('id_user', auth()->user()->id))
-                ->orderByDesc('created_at')
-                ->get();
+            $acoes = InvestimentoAcao::where('ativo', 1)->where('id_user', auth()->user()->id)->orderByDesc('created_at')->get();
+            $fiis = InvestimentoFundo::where('ativo', 1)->where('id_user', auth()->user()->id)->orderByDesc('created_at')->get();
+            $criptos = InvestimentoCripto::where('ativo', 1)->where('id_user', auth()->user()->id)->orderByDesc('created_at')->get();
 
             $ativosAcoes = Ativo::where('id_tipo', 1)->get();
             $ativosFiis = Ativo::where('id_tipo', 2)->get();
             $ativosCriptos = Ativo::where('id_tipo', 3)->get();
 
-            return view('carteira.home', compact('acoes', 'fiis', 'criptos', 'todos', 'ativosAcoes', 'ativosFiis', 'ativosCriptos'));
+            return view('carteira.home', compact('acoes', 'fiis', 'criptos', 'ativosAcoes', 'ativosFiis', 'ativosCriptos'));
         }catch (\Exception $ex) {
             return back()->with('erro', $ex->getMessage());
             // return back()->with('erro', 'Erro contate o administrador.');
@@ -44,28 +37,28 @@ class HomeController extends Controller
     {
         try {
 
-            $acoes = InvestimentoAcao::where('ativo', 1)->where('id_user', auth()->user()->id)->orderBy('data_compra', 'desc')->get();
-            $fiis = InvestimentoFundo::where('ativo', 1)->where('id_user', auth()->user()->id)->orderBy('data_compra', 'desc')->get();
-            $criptos = InvestimentoCripto::where('ativo', 1)->where('id_user', auth()->user()->id)->orderBy('data_compra', 'desc')->get();
+            $acoes = InvestimentoAcao::where('ativo', 1)->where('id_user', auth()->user()->id)->get();
+            $fiis = InvestimentoFundo::where('ativo', 1)->where('id_user', auth()->user()->id)->get();
+            $criptos = InvestimentoCripto::where('ativo', 1)->where('id_user', auth()->user()->id)->get();
 
             $somaTotal = 0; // total dos ativos
 
             $somaAcoes = 0; // total das ações
             foreach ($acoes as $a) {
-                $somaTotal = $somaTotal + $a->valorAtual();
-                $somaAcoes = $somaAcoes + $a->valorAtual();
+                $somaTotal = $somaTotal + $a->saldoAtivo();
+                $somaAcoes = $somaAcoes + $a->saldoAtivo();
             }
 
             $somaFiis = 0; // total dos fundos
             foreach ($fiis as $f) {
-                $somaTotal = $somaTotal + $f->valorAtual();
-                $somaFiis = $somaFiis + $f->valorAtual();
+                $somaTotal = $somaTotal + $f->saldoAtivo();
+                $somaFiis = $somaFiis + $f->saldoAtivo();
             }
 
             $somaCriptos = 0; // total das criptos
             foreach ($criptos as $c) {
-                $somaTotal = $somaTotal + $c->valorAtual();
-                $somaCriptos = $somaCriptos + $c->valorAtual();
+                $somaTotal = $somaTotal + $c->saldoAtivo();
+                $somaCriptos = $somaCriptos + $c->saldoAtivo();
             }
 
             $arrayResult = [];
