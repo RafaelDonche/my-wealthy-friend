@@ -156,8 +156,8 @@ class InvestimentoCriptoController extends Controller
                 'cripto' => 'required|integer',
                 'corretora' => 'max:250',
                 'data de compra' => 'required|date',
-                'valor unitário' => 'required',
-                'quantidade' => 'required|numeric|regex:/^\d{1,15}(\.\d{0,5})?$/'
+                'valor unitário' => 'required|numeric|min:0.01',
+                'quantidade' => 'required|numeric|min:1|regex:/^\d{1,15}(\.\d{0,5})?$/'
             ];
             $messages = [
                 'quantidade.regex' => "A 'quantidade' no cadastro da criptomoeda deve ter no máximo 15 dígitos a esquerda da vírgula e no máximo 5 a direita!"
@@ -218,9 +218,10 @@ class InvestimentoCriptoController extends Controller
                 return back()->with('erro', 'Acesso negado.');
             }
 
+            $consulta_cripto = route('api.obterDadosCripto', $item->ativo_info->sigla);
             $consulta_grafico_rendimento = route('carteira.cripto.obterDadosRendimento', $item->id);
 
-            return view('carteira.investimento-cripto.home', compact('item', 'consulta_grafico_rendimento'));
+            return view('carteira.investimento-cripto.home', compact('item', 'consulta_cripto', 'consulta_grafico_rendimento'));
 
         } catch (\Exception $ex) {
             return back()->with('erro', $ex->getMessage())->withInput();

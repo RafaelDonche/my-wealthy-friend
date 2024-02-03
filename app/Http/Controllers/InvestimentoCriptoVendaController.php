@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\InvestimentoCripto;
 use App\Models\InvestimentoCriptoVenda;
+use App\Services\AlterarValorVenda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -48,8 +49,8 @@ class InvestimentoCriptoVendaController extends Controller
             $rules = [
                 'corretora' => 'max:250',
                 'data de venda' => 'required|date',
-                'valor unitário' => 'required',
-                'quantidade' => 'required|numeric|regex:/^\d{1,15}(\.\d{0,5})?$/'
+                'valor unitário' => 'required|numeric|min:0.01',
+                'quantidade' => 'required|numeric|min:1|regex:/^\d{1,15}(\.\d{0,5})?$/'
             ];
             $messages = [
                 'quantidade.regex' => "A 'quantidade' no cadastro da criptomoeda deve ter no máximo 15 dígitos a esquerda da vírgula e no máximo 5 a direita!"
@@ -129,8 +130,8 @@ class InvestimentoCriptoVendaController extends Controller
             $rules = [
                 'corretora' => 'max:250',
                 'data de venda' => 'required|date',
-                'valor unitário' => 'required',
-                'quantidade' => 'required|numeric|regex:/^\d{1,15}(\.\d{0,5})?$/'
+                'valor unitário' => 'required|numeric|min:0.01',
+                'quantidade' => 'required|numeric|min:1|regex:/^\d{1,15}(\.\d{0,5})?$/'
             ];
             $messages = [
                 'quantidade.regex' => "A 'quantidade' no cadastro da criptomoeda deve ter no máximo 15 dígitos a esquerda da vírgula e no máximo 5 a direita!"
@@ -148,6 +149,9 @@ class InvestimentoCriptoVendaController extends Controller
                 return back()->with('erro', 'O investimento não foi encontrado.');
             }
 
+            if (!AlterarValorVenda::validar($venda->investimento->quantidadeAtual(), $request->quantidade, $venda->quantidade)) {
+                return back()->with('erro', 'Após a alteração, a quantidade de unidades do investimento não pode se menor que 0 (zero).');
+            }
 
             $venda->data_venda = $request->data_venda;
             $venda->quantidade = str_replace(",", ".", str_replace(".", "", $request->quantidade));

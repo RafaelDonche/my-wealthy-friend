@@ -21,7 +21,7 @@ class Ativo extends Model
     }
 
     public function ultimo_dia_historico() {
-        $ultimo = HistoricoAtivo::where('id_ativo', $this->id)->orderBy('id', 'asc')->first();
+        $ultimo = HistoricoAtivo::where('id_ativo', $this->id)->orderBy('data', 'desc')->first();
         return $ultimo;
     }
 

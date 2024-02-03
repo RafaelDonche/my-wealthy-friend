@@ -20,4 +20,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::get('/obterDadosEmpresa/{ticker}', [ApiController::class, 'obterDadosEmpresa'])->name('api.obterDadosEmpresa');
+Route::get('/obterDadosCripto/{ticker}', [ApiController::class, 'obterDadosCripto'])->name('api.obterDadosCripto');
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\InvestimentoAcao;
 use App\Models\InvestimentoAcaoCompra;
+use App\Services\AlterarValorCompra;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -48,8 +49,8 @@ class InvestimentoAcaoCompraController extends Controller
             $rules = [
                 'corretora' => 'max:250',
                 'data de compra' => 'required|date',
-                'valor unitário' => 'required',
-                'quantidade' => 'required|integer'
+                'valor unitário' => 'required|numeric|min:0.01',
+                'quantidade' => 'required|integer|min:1'
             ];
             $validacao = Validator::make($input, $rules);
             $validacao->validate();
@@ -122,8 +123,8 @@ class InvestimentoAcaoCompraController extends Controller
             $rules = [
                 'corretora' => 'max:250',
                 'data de compra' => 'required|date',
-                'valor unitário' => 'required',
-                'quantidade' => 'required|integer'
+                'valor unitário' => 'required|numeric|min:0.01',
+                'quantidade' => 'required|integer|min:1'
             ];
             $validacao = Validator::make($input, $rules);
             $validacao->validate();
@@ -140,7 +141,7 @@ class InvestimentoAcaoCompraController extends Controller
                 return back()->with('erro', 'Acesso negado.');
             }
 
-            if (($investimento->quantidadeAtual() - $request->quantidade) < 0) {
+            if (!AlterarValorCompra::validar($investimento->quantidadeAtual(), $request->quantidade, $compra->quantidade)) {
                 return back()->with('erro', 'Após a alteração, a quantidade de unidades do investimento não pode se menor que 0 (zero).');
             }
 

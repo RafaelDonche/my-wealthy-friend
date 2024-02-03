@@ -108,6 +108,18 @@
         .pointer:hover {
             cursor: pointer;
         }
+
+        .nome-cripto {
+            font-size: 1.5rem;
+        }
+
+        .arrow-green {
+            color: green;
+        }
+
+        .arrow-red {
+            color: red;
+        }
     </style>
 
     @include('errors.alerts')
@@ -126,16 +138,14 @@
                                         Data de cadastro:
                                         {{ date('d/m/Y', strtotime($item->created_at)) }}
                                     </p>
-                                    <p class="mb-1">Você possui: {{ number_format($item->quantidadeAtual(), 5, ',', '.') }} moedas</p>
+                                    <p class="mb-1">Você possui: {{ $item->quantidadeAtual() }} unidades</p>
+                                    <p class="mb-1">
+                                        Cotação atual:
+                                        R$ {{ number_format($item->ativo_info->ultimo_dia_historico()->valor_fechamento, 2, ',', '.') }}
+                                    </p>
                                     <p class="mb-4">
                                         Quanto vale hoje:
                                         R$ {{ number_format($item->valorAtual(), 2, ',', '.') }}
-                                    </p>
-                                    <p class="mb-1">
-                                        Seu investimento foi:
-                                        <span class="badge {{ $item->saldoAtivo() > 0 ? 'badge-success' : 'badge-danger' }}">
-                                            R$ {{ number_format($item->saldoAtivo(), 2, ',', '.') }}
-                                        </span>
                                     </p>
                                 </div>
                                 <div class="d-flex align-items-center ms-3">
@@ -143,16 +153,87 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="card-footer">
+                            <p class="mb-1">
+                                Lucro realizado:
+                                @if ($item->diferencaCompraVenda() > 0)
+                                    <span class="badge badge-success">
+                                @else
+                                    @if ($item->diferencaCompraVenda() == 0)
+                                        <span class="badge badge-secondary">
+                                    @else
+                                        <span class="badge badge-danger">
+                                    @endif
+                                @endif
+                                    R$ {{ number_format($item->diferencaCompraVenda(), 2, ',', '.') }}
+                                </span>
+                            </p>
+                            <p class="mb-1">
+                                Preço médio por unidade:
+                                @if ($item->precoMediaCompras() > 0)
+                                    <span class="badge badge-success">
+                                @else
+                                    @if ($item->precoMediaCompras() == 0)
+                                        <span class="badge badge-secondary">
+                                    @else
+                                        <span class="badge badge-danger">
+                                    @endif
+                                @endif
+                                    R$ {{ number_format($item->precoMediaCompras(), 2, ',', '.') }}
+                                </span>
+                            </p>
+                            <p class="mb-1">
+                                Valor atual investido:
+                                @if ($item->saldoAtivo() > 0)
+                                    <span class="badge badge-success">
+                                @else
+                                    @if ($item->valorAtualInvestido() == 0)
+                                        <span class="badge badge-secondary">
+                                    @else
+                                        <span class="badge badge-danger">
+                                    @endif
+                                @endif
+                                    R$ {{ number_format($item->valorAtualInvestido(), 2, ',', '.') }}
+                                </span>
+                            </p>
+                            <p class="mb-1">
+                                Seu lucro é:
+                                @if ($item->saldoAtivo() > 0)
+                                    <span class="badge badge-success">
+                                @else
+                                    @if ($item->saldoAtivo() == 0)
+                                        <span class="badge badge-secondary">
+                                    @else
+                                        <span class="badge badge-danger">
+                                    @endif
+                                @endif
+                                    R$ {{ number_format($item->saldoAtivo(), 2, ',', '.') }}
+                                </span>
+                            </p>
+                        </div>
                     </div>
                 </div>
-                <div class="card card-empresa p-2">
-                    <div class="card-header-empresa">
-                        <p class="sigla mb-2 text-center">{{ $item->ativo_info->nome }}</p>
-                        <p class="texto-empresa mb-2 text-left">Setor: {{ $item->ativo_info->id_segmento != null ? $item->ativo_info->segmento->nome : "" }}</p>
-                        <p class="texto-empresa mb-2 text-left" id="website_empresa"></p>
-                        <p class="texto-empresa mb-2 text-left" id="cidade_empresa"></p>
+                <div class="col-12 col-md-12 p-0 mb-3">
+                    <div class="card">
+                        <div class="card-body py-4">
+                            <div class="d-flex justify-content-between">
+                                <div class="flex-grow-1">
+                                    <h3 class="mb-2 nome-cripto">{{ $item->ativo_info->nome }}</h3>
+                                    <p class="mb-1" id="min-dia"></p>
+                                    <p class="mb-1" id="max-dia"></p>
+                                </div>
+                                <div class="d-flex align-items-top ms-3" id="arrow"></div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            Captalização de mercado:
+                            <p class="mb-1" id="capitalizacao-mercado"></p>
+                        </div>
+                        <div class="card-footer">
+                            Volume:
+                            <p class="mb-1" id="volume"></p>
+                        </div>
                     </div>
-                    <div class="card-body card-body-empresa"></div>
                 </div>
             </div>
             <div class="col-md-9 p-3">
@@ -306,6 +387,62 @@
         $('.valor_unitario').mask('000.000.000,00', { reverse: true });
 
         $(document).ready(function() {
+
+            axios.get(`{{ $consulta_cripto }}`)
+            .then(function (response) { console.log(response.data);
+
+                var result = response.data.coins[0];
+
+                if (result.regularMarketDayLow) {
+                    var min = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                        result.regularMarketDayLow,
+                    );
+                }else {
+                    var min = "<span class='text-muted text-sm'>não encontrado</span>";
+                }
+                if (result.regularMarketDayHigh) {
+                    var max = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                        result.regularMarketDayHigh,
+                    );
+                }else {
+                    var max = "<span class='text-muted text-sm'>não encontrado</span>";
+                }
+                if (result.marketCap) {
+
+                    var marketCap = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                        result.marketCap,
+                    );
+                }else {
+                    var marketCap = "<span class='text-muted text-sm'>não encontrado</span>";
+                }
+                if (result.regularMarketVolume) {
+                    var volume = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                        result.regularMarketVolume,
+                    );
+                }else {
+                    var volume = "<span class='text-muted text-sm'>não encontrado</span>";
+                }
+
+                if (result.regularMarketChange) {
+                    if (result.regularMarketChange > 0) {
+                        $("#arrow").append("<i class='fas fa-arrow-up arrow-green fa-lg'></i>");
+                    }
+                    if (result.regularMarketChange < 0) {
+                        $("#arrow").append("<i class='fas fa-arrow-down arrow-red fa-lg'></i>");
+                    }
+                    if (result.regularMarketChange == 0) {
+                        $("#arrow").append("<i class='fas fa-window-minimize fa-lg'></i>");
+                    }
+                }
+
+                $("#min-dia").append("Mínimo do dia: " + min);
+                $("#max-dia").append("Máximo do dia: " + max);
+                $("#capitalizacao-mercado").append(marketCap);
+                $("#volume").append(volume);
+            })
+            .catch(function (error) {
+                console.error(error);
+            });
 
             axios.get(`{{ $consulta_grafico_rendimento }}`)
             .then(function(response) {

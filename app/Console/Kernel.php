@@ -27,7 +27,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->everyMinute();
         $schedule->job(new AtualizarAtivos)->daily()->onFailure(function() {
-            AtualizarAtivos::dispatch();
+            return AtualizarAtivos::dispatch()->delay(now()->addMinutes(10));
         });
     }
 

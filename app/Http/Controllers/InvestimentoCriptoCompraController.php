@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\InvestimentoCripto;
 use App\Models\InvestimentoCriptoCompra;
+use App\Services\AlterarValorCompra;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -48,8 +49,8 @@ class InvestimentoCriptoCompraController extends Controller
             $rules = [
                 'corretora' => 'max:250',
                 'data de compra' => 'required|date',
-                'valor unitário' => 'required',
-                'quantidade' => 'required|numeric|regex:/^\d{1,15}(\.\d{0,5})?$/'
+                'valor unitário' => 'required|numeric|min:0.01',
+                'quantidade' => 'required|numeric|min:1|regex:/^\d{1,15}(\.\d{0,5})?$/'
             ];
             $messages = [
                 'quantidade.regex' => "A 'quantidade' no cadastro da criptomoeda deve ter no máximo 15 dígitos a esquerda da vírgula e no máximo 5 a direita!"
@@ -125,8 +126,8 @@ class InvestimentoCriptoCompraController extends Controller
             $rules = [
                 'corretora' => 'max:250',
                 'data de compra' => 'required|date',
-                'valor unitário' => 'required',
-                'quantidade' => 'required|numeric|regex:/^\d{1,15}(\.\d{0,5})?$/'
+                'valor unitário' => 'required|numeric|min:0.01',
+                'quantidade' => 'required|numeric|min:1|regex:/^\d{1,15}(\.\d{0,5})?$/'
             ];
             $messages = [
                 'quantidade.regex' => "A 'quantidade' no cadastro da criptomoeda deve ter no máximo 15 dígitos a esquerda da vírgula e no máximo 5 a direita!"
@@ -146,7 +147,7 @@ class InvestimentoCriptoCompraController extends Controller
                 return back()->with('erro', 'Acesso negado.');
             }
 
-            if (($investimento->quantidadeAtual() - str_replace(",", ".", str_replace(".", "", $request->quantidade))) < 0) {
+            if (!AlterarValorCompra::validar($investimento->quantidadeAtual(), $request->quantidade, $compra->quantidade)) {
                 return back()->with('erro', 'Após a alteração, a quantidade de unidades do investimento não pode se menor que 0 (zero).');
             }
 

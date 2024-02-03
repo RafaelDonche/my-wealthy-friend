@@ -190,9 +190,17 @@
                                                 </p>
 
                                                 <p class="mt-2 mb-0">
-                                                    Saldo do ativo:
-                                                    <span class="badge {{ $a->saldoAtivo() < 0 ? 'badge-danger' : 'badge-success' }}">
-                                                        R$ {{ number_format($a->saldoAtivo(), 2, ',', '.') }}
+                                                    Valor atual:
+                                                    @if ($a->valorAtual() > $a->valorAtualInvestido())
+                                                        <span class="badge badge-success">
+                                                    @else
+                                                        @if ($a->valorAtual() == $a->valorAtualInvestido())
+                                                            <span class="badge badge-secondary">
+                                                        @else
+                                                            <span class="badge badge-danger">
+                                                        @endif
+                                                    @endif
+                                                        R$ {{ number_format($a->valorAtual(), 2, ',', '.') }}
                                                     </span>
                                                 </p>
                                                 <p class="m-0">Quantidade: {{ $a->quantidadeAtual() }}</p>
@@ -217,9 +225,17 @@
                                                 </p>
 
                                                 <p class="mt-2 mb-0">
-                                                    Saldo do ativo:
-                                                    <span class="badge {{ $f->saldoAtivo() < 0 ? 'badge-danger' : 'badge-success' }}">
-                                                        R$ {{ number_format($f->saldoAtivo(), 2, ',', '.') }}
+                                                    Valor atual:
+                                                    @if ($f->valorAtual() > $f->valorAtualInvestido())
+                                                        <span class="badge badge-success">
+                                                    @else
+                                                        @if ($f->valorAtual() == $f->valorAtualInvestido())
+                                                            <span class="badge badge-secondary">
+                                                        @else
+                                                            <span class="badge badge-danger">
+                                                        @endif
+                                                    @endif
+                                                        R$ {{ number_format($f->valorAtual(), 2, ',', '.') }}
                                                     </span>
                                                 </p>
                                                 <p class="m-0">Quantidade: {{ $f->quantidadeAtual() }}</p>
@@ -244,9 +260,17 @@
                                                 </p>
 
                                                 <p class="mt-2 mb-0">
-                                                    Saldo do ativo:
-                                                    <span class="badge {{ $c->saldoAtivo() < 0 ? 'badge-danger' : 'badge-success' }}">
-                                                        R$ {{ number_format($c->saldoAtivo(), 2, ',', '.') }}
+                                                    Valor atual:
+                                                    @if ($c->valorAtual() > $c->valorAtualInvestido())
+                                                        <span class="badge badge-success">
+                                                    @else
+                                                        @if ($c->valorAtual() == $c->valorAtualInvestido())
+                                                            <span class="badge badge-secondary">
+                                                        @else
+                                                            <span class="badge badge-danger">
+                                                        @endif
+                                                    @endif
+                                                        R$ {{ number_format($c->valorAtual(), 2, ',', '.') }}
                                                     </span>
                                                 </p>
                                                 <p class="m-0">Quantidade: {{ $c->quantidadeAtual() }}</p>
@@ -318,9 +342,17 @@
                                                 </p>
 
                                                 <p class="mt-2 mb-0">
-                                                    Saldo do ativo:
-                                                    <span class="badge {{ $a->saldoAtivo() < 0 ? 'badge-danger' : 'badge-success' }}">
-                                                        R$ {{ number_format($a->saldoAtivo(), 2, ',', '.') }}
+                                                    Valor atual:
+                                                    @if ($a->valorAtual() > $a->valorAtualInvestido())
+                                                        <span class="badge badge-success">
+                                                    @else
+                                                        @if ($a->valorAtual() == $a->valorAtualInvestido())
+                                                            <span class="badge badge-secondary">
+                                                        @else
+                                                            <span class="badge badge-danger">
+                                                        @endif
+                                                    @endif
+                                                        R$ {{ number_format($a->valorAtual(), 2, ',', '.') }}
                                                     </span>
                                                 </p>
                                                 <p class="m-0">Quantidade: {{ $a->quantidadeAtual() }}</p>
@@ -398,9 +430,17 @@
                                                 </p>
 
                                                 <p class="mt-2 mb-0">
-                                                    Saldo do ativo:
-                                                    <span class="badge {{ $f->saldoAtivo() < 0 ? 'badge-danger' : 'badge-success' }}">
-                                                        R$ {{ number_format($f->saldoAtivo(), 2, ',', '.') }}
+                                                    Valor atual:
+                                                    @if ($f->valorAtual() > $f->valorAtualInvestido())
+                                                        <span class="badge badge-success">
+                                                    @else
+                                                        @if ($f->valorAtual() == $f->valorAtualInvestido())
+                                                            <span class="badge badge-secondary">
+                                                        @else
+                                                            <span class="badge badge-danger">
+                                                        @endif
+                                                    @endif
+                                                        R$ {{ number_format($f->valorAtual(), 2, ',', '.') }}
                                                     </span>
                                                 </p>
                                                 <p class="m-0">Quantidade: {{ $f->quantidadeAtual() }}</p>
@@ -478,9 +518,17 @@
                                                 </p>
 
                                                 <p class="mt-2 mb-0">
-                                                    Saldo do ativo:
-                                                    <span class="badge {{ $c->saldoAtivo() < 0 ? 'badge-danger' : 'badge-success' }}">
-                                                        R$ {{ number_format($c->saldoAtivo(), 2, ',', '.') }}
+                                                    Valor atual:
+                                                    @if ($c->valorAtual() > $c->valorAtualInvestido())
+                                                        <span class="badge badge-success">
+                                                    @else
+                                                        @if ($c->valorAtual() == $c->valorAtualInvestido())
+                                                            <span class="badge badge-secondary">
+                                                        @else
+                                                            <span class="badge badge-danger">
+                                                        @endif
+                                                    @endif
+                                                        R$ {{ number_format($c->valorAtual(), 2, ',', '.') }}
                                                     </span>
                                                 </p>
                                                 <p class="m-0">Quantidade: {{ $c->quantidadeAtual() }}</p>

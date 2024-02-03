@@ -155,8 +155,8 @@ class InvestimentoFundoController extends Controller
                 'fii' => 'required|integer',
                 'corretora' => 'max:250',
                 'data de compra' => 'required|date',
-                'valor unitário' => 'required',
-                'quantidade' => 'required|integer'
+                'valor unitário' => 'required|numeric|min:0.01',
+                'quantidade' => 'required|integer|min:1'
             ];
             $validacao = Validator::make($input, $rules);
             $validacao->validate();

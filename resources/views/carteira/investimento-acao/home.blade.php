@@ -107,6 +107,10 @@
         .pointer:hover {
             cursor: pointer;
         }
+
+        .text-sm {
+            font-size: 13px;
+        }
     </style>
 
     @include('errors.alerts')
@@ -126,38 +130,80 @@
                                         {{ date('d/m/Y', strtotime($item->created_at)) }}
                                     </p>
                                     <p class="mb-1">Você possui: {{ $item->quantidadeAtual() }} unidades</p>
+                                    <p class="mb-1">
+                                        Cotação atual:
+                                        R$ {{ number_format($item->ativo_info->ultimo_dia_historico()->valor_fechamento, 2, ',', '.') }}
+                                    </p>
                                     <p class="mb-4">
                                         Quanto vale hoje:
                                         R$ {{ number_format($item->valorAtual(), 2, ',', '.') }}
                                     </p>
-                                    <p class="mb-1">
-                                        Seu investimento foi:
-                                        <span class="badge {{ $item->saldoAtivo() > 0 ? 'badge-success' : 'badge-danger' }}">
-                                            R$ {{ number_format($item->saldoAtivo(), 2, ',', '.') }}
-                                        </span>
-                                    </p>
-                                    {{-- <div class="mb-0">
-                                        <span class="badge badge-success me-2"> +5.35% </span>
-                                        <span class="text-muted">Since last week</span>
-                                    </div> --}}
                                 </div>
                                 <div class="d-flex align-items-center ms-3">
                                     <img class="img-top" src="{{ $item->ativo_info->logo }}" alt="Logo">
                                 </div>
                             </div>
                         </div>
+                        <div class="card-footer">
+                            <p class="mb-1">
+                                Lucro realizado:
+                                @if ($item->diferencaCompraVenda() > 0)
+                                    <span class="badge badge-success">
+                                @else
+                                    @if ($item->diferencaCompraVenda() == 0)
+                                        <span class="badge badge-secondary">
+                                    @else
+                                        <span class="badge badge-danger">
+                                    @endif
+                                @endif
+                                    R$ {{ number_format($item->diferencaCompraVenda(), 2, ',', '.') }}
+                                </span>
+                            </p>
+                            <p class="mb-1">
+                                Preço médio por unidade:
+                                @if ($item->precoMediaCompras() > 0)
+                                    <span class="badge badge-success">
+                                @else
+                                    @if ($item->precoMediaCompras() == 0)
+                                        <span class="badge badge-secondary">
+                                    @else
+                                        <span class="badge badge-danger">
+                                    @endif
+                                @endif
+                                    R$ {{ number_format($item->precoMediaCompras(), 2, ',', '.') }}
+                                </span>
+                            </p>
+                            <p class="mb-1">
+                                Valor atual investido:
+                                @if ($item->saldoAtivo() > 0)
+                                    <span class="badge badge-success">
+                                @else
+                                    @if ($item->valorAtualInvestido() == 0)
+                                        <span class="badge badge-secondary">
+                                    @else
+                                        <span class="badge badge-danger">
+                                    @endif
+                                @endif
+                                    R$ {{ number_format($item->valorAtualInvestido(), 2, ',', '.') }}
+                                </span>
+                            </p>
+                            <p class="mb-1">
+                                Seu lucro é:
+                                @if ($item->saldoAtivo() > 0)
+                                    <span class="badge badge-success">
+                                @else
+                                    @if ($item->saldoAtivo() == 0)
+                                        <span class="badge badge-secondary">
+                                    @else
+                                        <span class="badge badge-danger">
+                                    @endif
+                                @endif
+                                    R$ {{ number_format($item->saldoAtivo(), 2, ',', '.') }}
+                                </span>
+                            </p>
+                        </div>
                     </div>
                 </div>
-                {{-- <div class="text-center mb-3">
-                    <div class="w-100 mt-3">
-                        <p class="sigla my-1">{{ $item->ativo_info->sigla }}</p>
-                        <p class="texto-logo my-1 text-left">Data de cadastro:
-                            {{ date('d/m/Y', strtotime($item->created_at)) }}</p>
-                        <p class="texto-logo my-1 text-left">Você possui: {{ $item->quantidadeAtual() }}</p>
-                        <p class="texto-logo my-1 text-left">Saldo atual:
-                            R$ {{ number_format($item->saldoAtivo(), 2, ',', '.') }}</p>
-                    </div>
-                </div> --}}
                 <div class="card card-empresa p-2">
                     <div class="card-header-empresa">
                         <p class="sigla mb-2 text-center">{{ $item->ativo_info->nome }}</p>
@@ -324,9 +370,36 @@
 
             //     var summaryProfile = response.data.results[0].summaryProfile;
 
-            //     $("#website_empresa").html("Website: " + summaryProfile.website);
-            //     $("#cidade_empresa").html(summaryProfile.country + " - " + summaryProfile.city + "/" + summaryProfile.state);
-            //     $(".card-body-empresa").html(summaryProfile.longBusinessSummary);
+            //     if (summaryProfile.website) {
+            //         var website = summaryProfile.website;
+            //     }else {
+            //         var website = "<span class='text-muted text-sm'>não encontrado</span>";
+            //     }
+            //     if (summaryProfile.country) {
+            //         var country = summaryProfile.country;
+            //     }else {
+            //         var country = "<span class='text-muted text-sm'>país não encontrado</span>";
+            //     }
+            //     if (summaryProfile.city) {
+            //         var city = summaryProfile.city;
+            //     }else {
+            //         var city = "<span class='text-muted text-sm'>cidade não encontrada</span>";
+            //     }
+            //     if (summaryProfile.state) {
+            //         var state = summaryProfile.state;
+            //     }else {
+            //         var state = "<span class='text-muted text-sm'>estado não encontrada</span>";
+            //     }
+            //     if (summaryProfile.longBusinessSummary) {
+            //         var longBusinessSummary = summaryProfile.longBusinessSummary;
+            //     }else {
+            //         var longBusinessSummary = "<span class='text-muted text-sm'>sem descrição</span>";
+            //     }
+
+
+            //     $("#website_empresa").append("Website: " + website);
+            //     $("#cidade_empresa").append(country + " - " + city + "/" + state);
+            //     $(".card-body-empresa").append(longBusinessSummary);
 
             // })
             // .catch(function (error) {

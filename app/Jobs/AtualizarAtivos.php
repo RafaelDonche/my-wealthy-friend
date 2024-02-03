@@ -82,7 +82,7 @@ class AtualizarAtivos implements ShouldQueue
                         $ativo->save();
 
                         $historico_ativo = new HistoricoAtivo();
-                        $historico_ativo->data = Carbon::now();
+                        $historico_ativo->data = Carbon::today();
                         $historico_ativo->valor_fechamento = $stock['close'];
                         $historico_ativo->variacao = $stock['change'];
                         $historico_ativo->id_ativo = $ativo->id;
@@ -90,12 +90,17 @@ class AtualizarAtivos implements ShouldQueue
 
                     }else {
 
-                        $historico_ativo = new HistoricoAtivo();
-                        $historico_ativo->data = Carbon::now();
-                        $historico_ativo->valor_fechamento = $stock['close'];
-                        $historico_ativo->variacao = $stock['change'];
-                        $historico_ativo->id_ativo = $ativo->id;
-                        $historico_ativo->save();
+                        $tem_historico_ativo = HistoricoAtivo::where('data', Carbon::today())->where('id_ativo', $ativo->id)->first();
+
+                        if (!$tem_historico_ativo) {
+
+                            $historico_ativo = new HistoricoAtivo();
+                            $historico_ativo->data = Carbon::today();
+                            $historico_ativo->valor_fechamento = $stock['close'];
+                            $historico_ativo->variacao = $stock['change'];
+                            $historico_ativo->id_ativo = $ativo->id;
+                            $historico_ativo->save();
+                        }
                     }
                 }
             }
@@ -145,7 +150,7 @@ class AtualizarAtivos implements ShouldQueue
                             $ativo->save();
 
                             $historico_ativo = new HistoricoAtivo();
-                            $historico_ativo->data = Carbon::now();
+                            $historico_ativo->data = Carbon::today();
                             $historico_ativo->valor_fechamento = $result['regularMarketPrice'];
                             $historico_ativo->variacao = $result['regularMarketChange'];
                             $historico_ativo->id_ativo = $ativo->id;
@@ -153,13 +158,18 @@ class AtualizarAtivos implements ShouldQueue
 
                         }else {
 
-                            $historico_ativo = new HistoricoAtivo();
-                            $historico_ativo->data = Carbon::now();
-                            $historico_ativo->valor_fechamento = $result['regularMarketPrice'];
-                            $historico_ativo->variacao = $result['regularMarketChange'];
-                            $historico_ativo->id_ativo = $ativo->id;
-                            $historico_ativo->save();
+                            $tem_historico_ativo = HistoricoAtivo::where('data', Carbon::today())->where('id_ativo', $ativo->id)->first();
 
+                            if (!$tem_historico_ativo) {
+
+                                $historico_ativo = new HistoricoAtivo();
+                                $historico_ativo->data = Carbon::today();
+                                $historico_ativo->valor_fechamento = $result['regularMarketPrice'];
+                                $historico_ativo->variacao = $result['regularMarketChange'];
+                                $historico_ativo->id_ativo = $ativo->id;
+                                $historico_ativo->save();
+
+                            }
                         }
                     }
                 }

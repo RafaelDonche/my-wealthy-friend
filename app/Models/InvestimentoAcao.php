@@ -82,13 +82,39 @@ class InvestimentoAcao extends Model
         return $somaVendas;
     }
 
-    public function saldoAtivo() {
-        return $this->saldoVendas() - $this->saldoCompras();
-    }
-
     // quantiade atual * ultimo valor de fechamento do ativo
     public function valorAtual() {
         $valor_ativo = $this->ativo_info->ultimo_dia_historico()->valor_fechamento;
         return $valor_ativo * $this->quantidadeAtual();
+    }
+
+    public function diferencaCompraVenda() {
+
+        if ($this->quantidadeVendida() == 0) {
+            return 0;
+        }
+
+        return $this->saldoVendas() - $this->saldoCompras();
+    }
+
+    // preço médio das compras = total do saldo das compras / total quantidade das compras
+    public function precoMediaCompras() {
+        return $this->saldoCompras() / $this->quantidadeComprada();
+    }
+
+    // valor da quantidade atual * o preço médio
+    public function valorAtualInvestido() {
+        return $this->precoMediaCompras() * $this->quantidadeAtual();
+    }
+
+    // lucro atual = (quantidade * cotação) - (quantidade * valor médio)
+    public function saldoAtivo() {
+
+        // se a quantidade atual for 0 então não tem lucro
+        if ($this->quantidadeAtual() == 0) {
+            return 0;
+        }
+
+        return $this->valorAtual() - $this->valorAtualInvestido();
     }
 }

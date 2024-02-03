@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\InvestimentoFundo;
 use App\Models\InvestimentoFundoVenda;
+use App\Services\AlterarValorVenda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -48,8 +49,8 @@ class InvestimentoFundoVendaController extends Controller
             $rules = [
                 'corretora' => 'max:250',
                 'data de venda' => 'required|date',
-                'valor unitário' => 'required',
-                'quantidade' => 'required|integer'
+                'valor unitário' => 'required|numeric|min:0.01',
+                'quantidade' => 'required|integer|min:1'
             ];
             $validacao = Validator::make($input, $rules);
             $validacao->validate();
@@ -126,8 +127,8 @@ class InvestimentoFundoVendaController extends Controller
             $rules = [
                 'corretora' => 'max:250',
                 'data de venda' => 'required|date',
-                'valor unitário' => 'required',
-                'quantidade' => 'required|integer'
+                'valor unitário' => 'required|numeric|min:0.01',
+                'quantidade' => 'required|integer|min:1'
             ];
             $validacao = Validator::make($input, $rules);
             $validacao->validate();
@@ -140,6 +141,10 @@ class InvestimentoFundoVendaController extends Controller
 
             if ($venda->investimento->id_user != auth()->user()->id) {
                 return back()->with('erro', 'O investimento não foi encontrado.');
+            }
+
+            if (!AlterarValorVenda::validar($venda->investimento->quantidadeAtual(), $request->quantidade, $venda->quantidade)) {
+                return back()->with('erro', 'Após a alteração, a quantidade de unidades do investimento não pode se menor que 0 (zero).');
             }
 
             $venda->data_venda = $request->data_venda;

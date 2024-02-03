@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\InvestimentoFundo;
 use App\Models\InvestimentoFundoCompra;
+use App\Services\AlterarValorCompra;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -48,8 +49,8 @@ class InvestimentoFundoCompraController extends Controller
             $rules = [
                 'corretora' => 'max:250',
                 'data de compra' => 'required|date',
-                'valor unitário' => 'required',
-                'quantidade' => 'required|integer'
+                'valor unitário' => 'required|numeric|min:0.01',
+                'quantidade' => 'required|integer|min:1'
             ];
             $validacao = Validator::make($input, $rules);
             $validacao->validate();
@@ -122,8 +123,8 @@ class InvestimentoFundoCompraController extends Controller
             $rules = [
                 'corretora' => 'max:250',
                 'data de compra' => 'required|date',
-                'valor unitário' => 'required',
-                'quantidade' => 'required|integer'
+                'valor unitário' => 'required|numeric|min:0.01',
+                'quantidade' => 'required|integer|min:1'
             ];
             $validacao = Validator::make($input, $rules);
             $validacao->validate();
@@ -140,8 +141,8 @@ class InvestimentoFundoCompraController extends Controller
 
             $investimento = InvestimentoFundo::find($compra->id_investimento);
 
-            if (($investimento->quantidadeAtual() - $request->quantidade) < 0) {
-                return back()->with('erro', 'Após a alteração, a quantidade de moedas do investimento não pode se menor que 0 (zero).');
+            if (!AlterarValorCompra::validar($investimento->quantidadeAtual(), $request->quantidade, $compra->quantidade)) {
+                return back()->with('erro', 'Após a alteração, a quantidade de unidades do investimento não pode se menor que 0 (zero).');
             }
 
             $compra->data_compra = $request->data_compra;
