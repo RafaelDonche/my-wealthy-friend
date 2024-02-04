@@ -49,7 +49,7 @@
 
         ::-webkit-scrollbar-thumb {
             border-radius: 10px;
-            -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            -webkit-box-shadow: inset 0 0 14px rgba(0,0,0,0.6);
         }
 
         /* Chrome, Safari, Edge, Opera */
@@ -73,6 +73,15 @@
             cursor: pointer;
             transform: scale(1.01);
             box-shadow: 0px 6px 6px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-meta {
+            width: 100% !important;
+            border-radius: 15px !important;
+            background-color: #ced4da !important;
+            box-shadow: 0px 10px 10px 4px rgba(0, 0, 0, 0.1) !important;
+            padding: 0.5rem !important;
+            border: none !important;
         }
 
         .card-img-top {
@@ -122,6 +131,20 @@
 
         .badge {
             font-size: 1rem !important;
+        }
+
+        .text-sm {
+            font-size: 12px;
+        }
+
+        .text-sm2 {
+            font-size: 14px;
+        }
+
+        .card-header-metas {
+            background-color: transparent !important;
+            padding: 0 !important;
+            border: none;
         }
     </style>
 
@@ -185,7 +208,7 @@
                                             </div>
                                             <div class="col-md-9 inner-body">
                                                 <h5 class="card-title text-center mb-0">{{ $a->ativo_info->sigla }} - {{ $a->ativo_info->nome }}</h5>
-                                                <p class="text-muted text-right">
+                                                <p class="text-muted text-right text-sm2">
                                                     cadastrado em {{ date('d/m/Y', strtotime($a->created_at)) }}
                                                 </p>
 
@@ -220,7 +243,7 @@
                                             </div>
                                             <div class="col-md-9 inner-body">
                                                 <h5 class="card-title text-center mb-0">{{ $f->ativo_info->sigla }} - {{ $f->ativo_info->nome }}</h5>
-                                                <p class="text-muted text-right">
+                                                <p class="text-muted text-right text-sm2">
                                                     cadastrado em {{ date('d/m/Y', strtotime($f->created_at)) }}
                                                 </p>
 
@@ -255,7 +278,7 @@
                                             </div>
                                             <div class="col-md-9 inner-body">
                                                 <h5 class="card-title text-center mb-0">{{ $c->ativo_info->sigla }} - {{ $c->ativo_info->nome }}</h5>
-                                                <p class="text-muted text-right">
+                                                <p class="text-muted text-right text-sm2">
                                                     cadastrado em {{ date('d/m/Y', strtotime($c->created_at)) }}
                                                 </p>
 
@@ -283,7 +306,7 @@
                         <div class="col-md-4 p-3">
                             <div class="card flex-fill w-100">
                                 <div class="card-header">
-                                    <h5 class="card-title mb-0">Porcentagem dos seus ativos</h5>
+                                    <h5 class="card-title mb-0">Porcentagem dos seus ativos <span class="text-muted text-sm">(referente ao valor atual)</span></h5>
                                 </div>
                                 <div class="card-body d-flex pt-0">
                                     <div class="align-self-center w-100">
@@ -308,7 +331,7 @@
                                                     <th class="align-bottom text-end" id="totalEntrada"></th>
                                                 </tr>
                                                 <tr>
-                                                    <th colspan="2" class="pr-0 align-bottom">Total vendido: </th>
+                                                    <th colspan="2" class="pr-0 align-bottom">Total de vendas: </th>
                                                     <th class="align-bottom text-end" id="totalEntradaVendidas"></th>
                                                 </tr>
                                             </tfoot>
@@ -337,7 +360,7 @@
                                             </div>
                                             <div class="col-md-9 inner-body">
                                                 <h5 class="card-title text-center mb-0">{{ $a->ativo_info->sigla }} - {{ $a->ativo_info->nome }}</h5>
-                                                <p class="text-muted text-right">
+                                                <p class="text-muted text-right text-sm2">
                                                     cadastrado em {{ date('d/m/Y', strtotime($a->created_at)) }}
                                                 </p>
 
@@ -370,7 +393,7 @@
                             </div>
                             <div class="card flex-fill w-100">
                                 <div class="card-header">
-                                    <h5 class="card-title mb-0">Porcentagem das suas ações</h5>
+                                    <h5 class="card-title mb-0">Porcentagem das suas ações <span class="text-muted text-sm">(referente ao valor atual)</span></h5>
                                 </div>
                                 <div class="card-body d-flex pt-0">
                                     <div class="align-self-center w-100">
@@ -395,7 +418,7 @@
                                                     <th class="align-bottom text-end" id="totalAcoes"></th>
                                                 </tr>
                                                 <tr>
-                                                    <th colspan="2" class="pr-0 align-bottom">Total vendido: </th>
+                                                    <th colspan="2" class="pr-0 align-bottom">Total de vendas: </th>
                                                     <th class="align-bottom text-end" id="totalAcoesVendidas"></th>
                                                 </tr>
                                             </tfoot>
@@ -425,7 +448,7 @@
                                             </div>
                                             <div class="col-md-9 inner-body">
                                                 <h5 class="card-title text-center mb-0">{{ $f->ativo_info->sigla }} - {{ $f->ativo_info->nome }}</h5>
-                                                <p class="text-muted text-right">
+                                                <p class="text-muted text-right text-sm2">
                                                     cadastrado em {{ date('d/m/Y', strtotime($f->created_at)) }}
                                                 </p>
 
@@ -458,7 +481,7 @@
                             </div>
                             <div class="card flex-fill w-100">
                                 <div class="card-header">
-                                    <h5 class="card-title mb-0">Porcentagem dos seus fundos de investimentos imobiliários</h5>
+                                    <h5 class="card-title mb-0">Porcentagem dos seus fundos de investimentos imobiliários <span class="text-muted text-sm">(referente ao valor atual)</span></h5>
                                 </div>
                                 <div class="card-body d-flex pt-0">
                                     <div class="align-self-center w-100">
@@ -483,7 +506,7 @@
                                                     <th class="align-bottom text-end" id="totalFiis"></th>
                                                 </tr>
                                                 <tr>
-                                                    <th colspan="2" class="pr-0 align-bottom">Total vendido: </th>
+                                                    <th colspan="2" class="pr-0 align-bottom">Total de vendas: </th>
                                                     <th class="align-bottom text-end" id="totalFiisVendidas"></th>
                                                 </tr>
                                             </tfoot>
@@ -513,7 +536,7 @@
                                             </div>
                                             <div class="col-md-9 inner-body">
                                                 <h5 class="card-title text-center mb-0">{{ $c->ativo_info->sigla }} - {{ $c->ativo_info->nome }}</h5>
-                                                <p class="text-muted text-right">
+                                                <p class="text-muted text-right text-sm2">
                                                     cadastrado em {{ date('d/m/Y', strtotime($c->created_at)) }}
                                                 </p>
 
@@ -546,7 +569,7 @@
                             </div>
                             <div class="card flex-fill w-100">
                                 <div class="card-header">
-                                    <h5 class="card-title mb-0">Porcentagem dos seus criptoativos</h5>
+                                    <h5 class="card-title mb-0">Porcentagem dos seus criptoativos <span class="text-muted text-sm">(referente ao valor atual)</span></h5>
                                 </div>
                                 <div class="card-body d-flex pt-0">
                                     <div class="align-self-center w-100">
@@ -571,7 +594,7 @@
                                                     <th class="align-bottom text-end" id="totalCriptos"></th>
                                                 </tr>
                                                 <tr>
-                                                    <th colspan="2" class="pr-0 align-bottom">Total vendido: </th>
+                                                    <th colspan="2" class="pr-0 align-bottom">Total de vendas: </th>
                                                     <th class="align-bottom text-end" id="totalCriptosVendidas"></th>
                                                 </tr>
                                             </tfoot>
@@ -582,7 +605,123 @@
                         </div>
                     </div>
                 </div>
-                <div class="tab-pane fade" id="metas" role="tabpanel" aria-labelledby="metas-tab">...</div>
+                <div class="tab-pane fade" id="metas" role="tabpanel" aria-labelledby="metas-tab">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="col-md-12">
+                                <input type="search" class="form-control text-center search-input" id="search-input-metas"
+                                    placeholder="Busque sua meta...">
+                            </div>
+                            <div class="col-md-12 cards" id="cards-metas">
+                                @foreach ($metas as $m)
+                                    <div class="card card-meta my-3 px-2"
+                                        nome="{{ $m->nome }}">
+                                        <div class="card-header card-header-metas">
+                                            <div class="card-actions float-end">
+                                                <div class="dropdown position-relative">
+                                                    <a href="#" data-toggle="dropdown" data-display="static">
+                                                        <i class="fas fa-cog fa-lg"></i>
+                                                    </a>
+                                                    <div class="dropdown-menu dropdown-menu-end"
+                                                        rota_editar="{{ route('carteira.meta.update', $m->id) }}"
+                                                        rota_excluir="{{ route('carteira.meta.destroy', $m->id) }}"
+                                                        nome="{{ $m->nome }}"
+                                                        descricao="{{ $m->descricao }}"
+                                                        valor="{{ number_format($m->valor, 2, ',', '.') }}"
+                                                        data_fim="{{ $m->data_fim }}"
+                                                        data_fim_formatada="{{ date('d/m/Y', strtotime($m->data_fim)) }}"
+                                                        tipo_acao="{{ $m->tipo_acao_ativo() }}"
+                                                        tipo_fii="{{ $m->tipo_fii_ativo() }}"
+                                                        tipo_cripto="{{ $m->tipo_cripto_ativo() }}">
+                                                        <a class="dropdown-item" onclick="abrirModalEditarMeta(this)">Editar</a>
+                                                        <a class="dropdown-item" onclick="abrirModalExcluirMeta(this)">Excluir</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <h5 class="card-title text-center mb-0">{{ $m->nome }}</h5>
+                                            <p class="text-muted text-right text-sm2 mb-0 mt-2">
+                                                cadastrado em {{ date('d/m/Y', strtotime($m->created_at)) }}
+                                            </p>
+                                        </div>
+                                        <div class="card-body row align-items-center p-0">
+                                            <div class="col-md-3 d-flex justify-content-center">
+                                                <svg width="146" height="146" viewBox="-18.25 -18.25 182.5 182.5" version="1.1" xmlns="http://www.w3.org/2000/svg" style="transform:rotate(-90deg)">
+                                                    <circle r="63" cx="73" cy="73" fill="transparent" stroke="#9eaeff" stroke-width="30" stroke-dasharray="395.64px" stroke-dashoffset="0"></circle>
+                                                    <circle r="63" cx="73" cy="73" stroke="#294bf5" stroke-width="21" stroke-linecap="round" stroke-dashoffset="{{ 395.64 * ((100 - $m->porcentagemAtual()) / 100) }}" fill="transparent" stroke-dasharray="395.64px"></circle>
+                                                    <text x="42px" y="79px" fill="#294bf5" font-size="20px" font-weight="bold" style="transform:rotate(90deg) translate(0px, -142px)">{{ number_format($m->porcentagemAtual(), 2, ',', '.') }}%</text>
+                                                </svg>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <p class="text-justify my-1">{{ $m->descricao }}</p>
+                                                <p class="m-0"><strong>Data fim: {{ date('d/m/Y', strtotime($m->data_fim)) }}</strong></p>
+                                                <p class="m-0"><strong>Valor da meta: R$ {{ number_format($m->valor, 2, ',', '.') }}</strong></p>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer d-flex justify-content-center" style="background-color: transparent;">
+                                            @foreach ($m->tipos as $t)
+                                                <span class="mx-3">
+                                                    <i class="fas fa-circle fa-sm" style="color: rgb(50, 50, 255)"></i>
+                                                    {{ $t->tipo->nome }}
+                                                </span>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        <div class="col-md-4 px-3">
+                            <div class="card flex-fill w-100">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Adicionar meta</h5>
+                                </div>
+                                <div class="card-body d-flex pt-0">
+                                    <form action="{{ route('carteira.meta.store') }}" method="post">
+                                        @csrf
+                                        <div class="row">
+                                            <div class="col-md-12 my-2">
+                                                <label class="form-label" for="nome_meta">Qual o nome da meta?</label>
+                                                <input class="form-control" type="text" name="nome_meta" required>
+                                            </div>
+                                            <div class="col-md-12 mb-2">
+                                                <label class="form-label" for="descricao_meta">Descreva:</label>
+                                                <textarea class="form-control" name="descricao_meta" id="descricao_meta" rows="5"></textarea>
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <label class="form-label" for="valor_meta">Qual o valor alvo?</label>
+                                                <input class="form-control valor_unitario" type="text" name="valor_meta" required>
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <label class="form-label" for="tipo_data_fim">Esta meta tera fim em:</label>
+                                                <select class="form-control" name="tipo_data_fim" id="tipo_data_fim">
+                                                    <option value="1">daqui 1 mês</option>
+                                                    <option value="2">daqui 3 meses</option>
+                                                    <option value="3">daqui 6 meses</option>
+                                                    <option value="4">daqui 1 ano</option>
+                                                    <option value="5">data personalizada</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-12 mb-2 d-none" id="data_personalizada">
+                                                <label class="form-label" for="data_fim_meta">Data personalizada para o fim da meta:</label>
+                                                <input class="form-control" type="date" name="data_fim_meta" id="data_fim_meta">
+                                            </div>
+                                            <div class="col-md-12 mb-2">
+                                                <label class="form-label" for="tipo_meta">Esta meta deve ser referente a:</label>
+                                                <select class="form-control select-multiple" name="tipo_meta[]" id="tipo_meta" multiple="multiple" required>
+                                                    @foreach ($tipo_metas as $tm)
+                                                        <option value="{{ $tm->id }}" selected>{{ $tm->nome }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-md-12 my-2">
+                                                <button type="submit" class="btn btn-primary w-100" style="height: 40px; border-radius: 0.5rem;">Adicionar</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -595,6 +734,7 @@
     <script src="{{ asset('js/home/busca.js') }}"></script>
     <script src="{{ asset('js/home/select.js') }}"></script>
     <script src="{{ asset('js/home/ordenarDivs.js') }}"></script>
+    <script src="{{ asset('js/home/abrirModal.js') }}"></script>
 
     <script>
         $('.valor_unitario').mask('000.000.000,00', { reverse: true });
@@ -615,17 +755,6 @@
         document.addEventListener("DOMContentLoaded", function() {
 
             orderDesc("#cards-entrada", "data");
-
-            $('.select2').select2({
-                language: {
-                    noResults: function() {
-                        return "Nenhum resultado encontrado";
-                    }
-                },
-                placeholder: "selecione",
-                closeOnSelect: true,
-                width: '100%',
-            });
 
             // obter valores para o grafico de entrada
             axios.get(`{{ route('carteira.obterDados') }}`)
@@ -677,7 +806,7 @@
 
             })
             .catch(function (error) {
-                console.error(error.data);
+                console.error(error);
             });
 
             // obter valores para o grafico de ações
@@ -730,7 +859,7 @@
 
             })
             .catch(function (error) {
-                console.error(error.data);
+                console.error(error);
             });
 
             // obter valores para o grafico de fiis
@@ -783,7 +912,7 @@
 
             })
             .catch(function (error) {
-                console.error(error.data);
+                console.error(error);
             });
 
             // obter valores para o grafico de criptos
@@ -836,8 +965,22 @@
 
             })
             .catch(function (error) {
-                console.error(error.data);
+                console.error(error);
+            });
+
+            $('#tipo_data_fim').change(function() {
+                if (this.value == 5) {
+                    $('#data_personalizada').removeClass('d-none');
+                    $('#data_fim_meta').attr('required', 'required');
+                    $('#data_fim_meta').trigger('focus');
+                }else {
+                    if ($('#data_personalizada').hasClass('d-none') == false) {
+                        $('#data_personalizada').addClass('d-none');
+                    }
+                    $('#data_fim_meta').removeAttr('required');
+                }
             });
         });
+
     </script>
 @endsection

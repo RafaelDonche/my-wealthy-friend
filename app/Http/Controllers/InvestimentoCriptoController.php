@@ -45,25 +45,21 @@ class InvestimentoCriptoController extends Controller
             $arrayResult = [];
 
             $somaTotal = 0;
-            foreach ($criptos as $c) {
-                $somaTotal = $somaTotal + $c->saldoAtivo();
-            }
+            $somaTotalVendidas = 0;
 
             $result = [];
-            $somaTotalVendidas = 0;
             foreach ($criptos as $c) {
+
+                $somaTotal = $somaTotal + $c->valorAtual();
+                $somaTotalVendidas = $somaTotalVendidas + $c->saldoVendas();
+
                 $result = new stdClass();
                 $result->nome = $c->ativo_info->sigla;
-                $result->valor = number_format($c->saldoAtivo(), 2, ',', '.');
-                $porcentagem = ($c->saldoAtivo() / $somaTotal) * 100;
+                $result->valor = number_format($c->valorAtual(), 2, ',', '.');
+                $porcentagem = ($c->valorAtual() / $somaTotal) * 100;
                 $result->porcentagem = number_format($porcentagem, 2);
 
                 array_push($arrayResult, $result);
-
-                $criptosVendidas = $c->vendas;
-                foreach ($criptosVendidas as $cv) {
-                    $somaTotalVendidas = $somaTotalVendidas + ($cv->valor_unitario*$cv->quantidade);
-                }
             }
 
 
@@ -91,8 +87,8 @@ class InvestimentoCriptoController extends Controller
                 return response()->json("Acesso negado.", 400);
             }
 
-            $compras = InvestimentoCriptoCompra::where('ativo', 1)->where('id_investimento', $id_investimento)->orderBy('data_compra')->get();
-            $vendas = InvestimentoCriptoVenda::where('ativo', 1)->where('id_investimento', $id_investimento)->orderBy('data_venda')->get();
+            $compras = $investimento->compras;
+            $vendas = $investimento->vendas;
 
             $minData = null;
             $dataCompras = [];

@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         $this->call(UserTableSeeder::class);
         $this->call(TipoAtivoTableSeeder::class);
         $this->call(SegmentoAtivoTableSeeder::class);
+        $this->call(TipoMetaTableSeeder::class);
         $this->call(AtivosTableSeeder::class);
         $this->call(HistoricoAtivosTableSeeder::class);
     }

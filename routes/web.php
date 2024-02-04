@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AtivoController;
 use App\Http\Controllers\Auth\ConfirmacaoEmailController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\InvestimentoCriptoVendaController;
 use App\Http\Controllers\InvestimentoFundoCompraController;
 use App\Http\Controllers\InvestimentoFundoController;
 use App\Http\Controllers\InvestimentoFundoVendaController;
+use App\Http\Controllers\MetaController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -48,6 +50,26 @@ Route::post('/link-encaminhado', [ConfirmacaoEmailController::class, 'linkEncami
 Route::get('/confirmacao-email/{id}', [ConfirmacaoEmailController::class, 'confirmacaoEmail'])->name('confirmacao_email');
 
 Route::group(['middleware' => 'auth'], function () {
+
+    // Listagem
+    Route::group(['prefix' => '/listagem', 'as' => 'listagem.'], function() {
+
+        // Ações
+        Route::group(['prefix' => '/acao', 'as' => 'acao.'], function() {
+            Route::get('/index', [AtivoController::class, 'listagemAcao'])->name('index');
+        });
+
+        // Fundos
+        Route::group(['prefix' => '/fundo', 'as' => 'fundo.'], function() {
+            Route::get('/index', [AtivoController::class, 'listagemFundo'])->name('index');
+        });
+
+        // Criptos
+        Route::group(['prefix' => '/cripto', 'as' => 'cripto.'], function() {
+            Route::get('/index', [AtivoController::class, 'listagemCripto'])->name('index');
+        });
+
+    });
 
     // Investimento
     Route::group(['prefix' => '/carteira', 'as' => 'carteira.'], function() {
@@ -123,6 +145,12 @@ Route::group(['middleware' => 'auth'], function () {
                 Route::post('/update/{id}', [InvestimentoCriptoVendaController::class, 'update'])->name('update');
                 Route::post('/destroy/{id}', [InvestimentoCriptoVendaController::class, 'destroy'])->name('destroy');
             });
+        });
+
+        Route::group(['prefix' => '/meta', 'as' => 'meta.'], function() {
+            Route::post('/store', [MetaController::class, 'store'])->name('store');
+            Route::post('/update/{id}', [MetaController::class, 'update'])->name('update');
+            Route::post('/destroy/{id}', [MetaController::class, 'destroy'])->name('destroy');
         });
 
     });

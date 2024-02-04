@@ -53,3 +53,17 @@ $('#search-input-criptos').on('input', function () {
         }
     });
 });
+
+$('#search-input-metas').on('input', function () {
+    var termoBusca = $(this).val().toLowerCase();
+
+    $('#cards-metas .card').each(function () {
+        var nomeCard = $(this).attr('nome').toLowerCase();
+
+        if (nomeCard.includes(termoBusca)) {
+            $(this).show();
+        } else {
+            $(this).hide();
+        }
+    });
+});

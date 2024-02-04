@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TipoM;
+use App\Models\ConexaoTipoMeta;
 use Illuminate\Http\Request;
 
-class TipoMController extends Controller
+class ConexaoTipoMetaController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -41,10 +41,10 @@ class TipoMController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\TipoM  $tipoM
+     * @param  \App\Models\ConexaoTipoMeta  $conexaoTipoMeta
      * @return \Illuminate\Http\Response
      */
-    public function show(TipoM $tipoM)
+    public function show(ConexaoTipoMeta $conexaoTipoMeta)
     {
         //
     }
@@ -52,10 +52,10 @@ class TipoMController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\TipoM  $tipoM
+     * @param  \App\Models\ConexaoTipoMeta  $conexaoTipoMeta
      * @return \Illuminate\Http\Response
      */
-    public function edit(TipoM $tipoM)
+    public function edit(ConexaoTipoMeta $conexaoTipoMeta)
     {
         //
     }
@@ -64,10 +64,10 @@ class TipoMController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\TipoM  $tipoM
+     * @param  \App\Models\ConexaoTipoMeta  $conexaoTipoMeta
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, TipoM $tipoM)
+    public function update(Request $request, ConexaoTipoMeta $conexaoTipoMeta)
     {
         //
     }
@@ -75,10 +75,10 @@ class TipoMController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\TipoM  $tipoM
+     * @param  \App\Models\ConexaoTipoMeta  $conexaoTipoMeta
      * @return \Illuminate\Http\Response
      */
-    public function destroy(TipoM $tipoM)
+    public function destroy(ConexaoTipoMeta $conexaoTipoMeta)
     {
         //
     }

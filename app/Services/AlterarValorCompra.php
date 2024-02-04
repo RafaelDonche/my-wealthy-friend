@@ -15,8 +15,8 @@ class AlterarValorCompra {
 
         $diferenca = $valor_novo - $valor_anterior;
 
-        if ($diferenca < 0) {
-            if ($quantidade_atual < abs($diferenca)) {
+        if (strval($diferenca) < 0) {
+            if (strval($quantidade_atual) < strval(abs($diferenca))) {
                 return false;
             }else {
                 return true;

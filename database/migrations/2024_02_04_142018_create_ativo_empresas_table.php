@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTipoMSTable extends Migration
+class CreateAtivoEmpresasTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class CreateTipoMSTable extends Migration
      */
     public function up()
     {
-        Schema::create('tipo_m_s', function (Blueprint $table) {
-            $table->increments('id');
+        Schema::create('ativo_empresas', function (Blueprint $table) {
+            $table->id();
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ class CreateTipoMSTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tipo_m_s');
+        Schema::dropIfExists('ativo_empresas');
     }
 }

@@ -40,6 +40,7 @@
 
             .navbar-nav .nav-item {
                 margin: 0 20px;
+                width: 85px;
             }
         </style>
     </head>
@@ -60,13 +61,16 @@
                             href="{{ route('carteira.home') }}">Carteira</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Ações</a>
+                        <a class="nav-link {{  str_contains(Route::current()->uri, 'listagem/acao/') ? 'active' : null }}"
+                            href="{{ route('listagem.acao.index') }}">Ações</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">FII's</a>
+                        <a class="nav-link {{  str_contains(Route::current()->uri, 'listagem/fundo/') ? 'active' : null }}"
+                            href="{{ route('listagem.fundo.index') }}">FII's</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Criptos</a>
+                        <a class="nav-link {{  str_contains(Route::current()->uri, 'listagem/cripto/') ? 'active' : null }}"
+                            href="{{ route('listagem.cripto.index') }}">Criptos</a>
                     </li>
                 </ul>
                 {{-- <form class="form-inline my-2 my-lg-0">
@@ -93,6 +97,31 @@
     <script src="{{ asset('select2-4.1.0/dist/js/select2.min.js') }}"></script>
     <script src="{{ asset('js/jQuery-Mask-Plugin-master/dist/jquery.mask.min.js') }}"></script>
     <script src="https://cdn.datatables.net/v/bs4/dt-1.13.8/r-2.5.0/datatables.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                language: {
+                    noResults: function() {
+                        return "Nenhum resultado encontrado";
+                    }
+                },
+                placeholder: "selecione",
+                closeOnSelect: true,
+                width: '100%',
+            });
+            $('.select-multiple').select2({
+                language: {
+                    noResults: function() {
+                        return "Nenhum resultado encontrado";
+                    }
+                },
+                placeholder: "selecione",
+                closeOnSelect: false,
+                width: '100%',
+            });
+        })
+    </script>
 
     @yield('scripts')
 

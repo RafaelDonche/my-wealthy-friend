@@ -161,10 +161,10 @@
                             </p>
                             <p class="mb-1">
                                 Preço médio por unidade:
-                                @if ($item->precoMediaCompras() > 0)
+                                @if (strval($item->precoMediaCompras()) < $item->ativo_info->ultimo_dia_historico()->valor_fechamento)
                                     <span class="badge badge-success">
                                 @else
-                                    @if ($item->precoMediaCompras() == 0)
+                                    @if (strval($item->precoMediaCompras()) == $item->ativo_info->ultimo_dia_historico()->valor_fechamento)
                                         <span class="badge badge-secondary">
                                     @else
                                         <span class="badge badge-danger">
@@ -175,10 +175,10 @@
                             </p>
                             <p class="mb-1">
                                 Valor atual investido:
-                                @if ($item->saldoAtivo() > 0)
+                                @if (strval($item->valorAtualInvestido()) < strval($item->valorAtual()))
                                     <span class="badge badge-success">
                                 @else
-                                    @if ($item->valorAtualInvestido() == 0)
+                                    @if (strval($item->valorAtualInvestido()) == strval($item->valorAtual()))
                                         <span class="badge badge-secondary">
                                     @else
                                         <span class="badge badge-danger">
@@ -358,7 +358,7 @@
 @endsection
 
 @section('scripts')
-    <script src="{{ asset('js/home/abrirModal.js') }}"></script>
+    <script src="{{ asset('js/investimento/abrirModal.js') }}"></script>
 
     <script>
         $('.valor_unitario').mask('000.000.000,00', { reverse: true });

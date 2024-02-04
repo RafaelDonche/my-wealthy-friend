@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePeriodoMetasTable extends Migration
+class CreateAtivoProventosTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class CreatePeriodoMetasTable extends Migration
      */
     public function up()
     {
-        Schema::create('periodo_metas', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('descricao');
+        Schema::create('ativo_proventos', function (Blueprint $table) {
+            $table->id();
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ class CreatePeriodoMetasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('periodo_metas');
+        Schema::dropIfExists('ativo_proventos');
     }
 }

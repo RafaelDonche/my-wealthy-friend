@@ -45,25 +45,21 @@ class InvestimentoFundoController extends Controller
             $arrayResult = [];
 
             $somaTotal = 0;
-            foreach ($fundos as $f) {
-                $somaTotal = $somaTotal + $f->saldoAtivo();
-            }
+            $somaTotalVendidas = 0;
 
             $result = [];
             foreach ($fundos as $f) {
+
+                $somaTotal = $somaTotal + $f->valorAtual();
+                $somaTotalVendidas = $somaTotalVendidas + $f->saldoVendas();
+
                 $result = new stdClass();
                 $result->nome = $f->ativo_info->sigla;
-                $result->valor = number_format($f->saldoAtivo(), 2, ',', '.');
-                $porcentagem = ($f->saldoAtivo() / $somaTotal) * 100;
+                $result->valor = number_format($f->valorAtual(), 2, ',', '.');
+                $porcentagem = ($f->valorAtual() / $somaTotal) * 100;
                 $result->porcentagem = number_format($porcentagem, 2);
 
                 array_push($arrayResult, $result);
-
-                $fundosVendidas = $f->vendas;
-                $somaTotalVendidas = 0;
-                foreach ($fundosVendidas as $fv) {
-                    $somaTotalVendidas = $somaTotalVendidas + ($fv->valor_unitario*$fv->quantidade);
-                }
             }
 
             return response()->json([
@@ -90,8 +86,8 @@ class InvestimentoFundoController extends Controller
                 return response()->json("Acesso negado.", 400);
             }
 
-            $compras = InvestimentoFundoCompra::where('ativo', 1)->where('id_investimento', $id_investimento)->orderBy('data_compra')->get();
-            $vendas = InvestimentoFundoVenda::where('ativo', 1)->where('id_investimento', $id_investimento)->orderBy('data_venda')->get();
+            $compras = $investimento->compras;
+            $vendas = $investimento->vendas;
 
             $minData = null;
             $dataCompras = [];

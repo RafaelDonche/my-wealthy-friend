@@ -1,3 +1,15 @@
+
+<style>
+
+    .modal-header-secondary {
+        background-color: rgba(134, 134, 134, 0.425);
+    }
+
+    .modal-header-danger {
+        background-color: rgba(131, 0, 0, 0.425);
+    }
+</style>
+
 <!-- Modal = adicionarAcao -->
 <div class="modal fade" id="adicionarAcao" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -178,6 +190,85 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
                     <button type="submit" class="btn btn-primary">Adicionar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal = editarMeta -->
+<div class="modal fade" id="editarMeta" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-header-secondary">
+                <h5 class="modal-title">Edite as informações da meta</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="" id="form-update-meta" method="post">
+                @csrf
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12 my-2">
+                            <label class="form-label" for="nome_meta">Nome:</label>
+                            <input class="form-control" type="text" name="nome_meta" id="nome_meta_update" required>
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            <label class="form-label" for="descricao_meta">Descição:</label>
+                            <textarea class="form-control" name="descricao_meta" id="descricao_meta_update" rows="5"></textarea>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label" for="valor_meta">Valor:</label>
+                            <input class="form-control valor_unitario" type="text" name="valor_meta" id="valor_meta_update" required>
+                        </div>
+                        <div class="col-md-6 mb-2" id="data_personalizada">
+                            <label class="form-label" for="data_fim_meta">Data fim:</label>
+                            <input class="form-control" type="date" name="data_fim_meta" id="data_fim_meta_update" required>
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            <label class="form-label" for="tipo_meta">Ativos de referência:</label>
+                            <select class="form-control select-multiple" name="tipo_meta[]" id="tipo_meta_update" multiple="multiple" required>
+                                @foreach ($tipo_metas as $tm)
+                                    <option value="{{ $tm->id }}">{{ $tm->nome }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal = removerMeta -->
+<div class="modal fade" id="removerMeta" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-header-danger">
+                <h5 class="modal-title">Deseja excluir esta meta?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="" id="form-destroy-meta" method="post">
+                @csrf
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <p class="text-center mb-2" style="font-size: 20px"><strong id="nome_meta_destroy"></strong></p>
+                            <p class="mt-0 mb-2" id="valor_meta_destroy"></p>
+                            <p class="mt-0" id="data_fim_meta_destroy"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    <button type="submit" class="btn btn-danger">Excluir</button>
                 </div>
             </form>
         </div>

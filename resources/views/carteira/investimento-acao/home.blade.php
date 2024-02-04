@@ -161,10 +161,10 @@
                             </p>
                             <p class="mb-1">
                                 Preço médio por unidade:
-                                @if ($item->precoMediaCompras() > 0)
+                                @if (strval($item->precoMediaCompras()) < $item->ativo_info->ultimo_dia_historico()->valor_fechamento)
                                     <span class="badge badge-success">
                                 @else
-                                    @if ($item->precoMediaCompras() == 0)
+                                    @if (strval($item->precoMediaCompras()) == $item->ativo_info->ultimo_dia_historico()->valor_fechamento)
                                         <span class="badge badge-secondary">
                                     @else
                                         <span class="badge badge-danger">
@@ -175,10 +175,10 @@
                             </p>
                             <p class="mb-1">
                                 Valor atual investido:
-                                @if ($item->saldoAtivo() > 0)
+                                @if (strval($item->valorAtualInvestido()) < strval($item->valorAtual()))
                                     <span class="badge badge-success">
                                 @else
-                                    @if ($item->valorAtualInvestido() == 0)
+                                    @if (strval($item->valorAtualInvestido()) == strval($item->valorAtual()))
                                         <span class="badge badge-secondary">
                                     @else
                                         <span class="badge badge-danger">
@@ -212,6 +212,50 @@
                         <p class="texto-empresa mb-2 text-left" id="cidade_empresa"></p>
                     </div>
                     <div class="card-body card-body-empresa"></div>
+                </div>
+                <div class="card p-2">
+                    <div class="card-header card-header-compras">
+                        <h5 class="card-title mb-0">Proventos</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped myDataTable my-0">
+                            <thead>
+                                <tr>
+                                    <th>Data da compra</th>
+                                    <th>Quantidade</th>
+                                    <th>Valor unitário</th>
+                                    <th>Corretora</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($item->compras as $c)
+                                    <tr>
+                                        <td>{{ date('d/m/Y', strtotime($c->data_compra)) }}</td>
+                                        <td>{{ $c->quantidade }}</td>
+                                        <td>R$ {{ number_format($c->valor_unitario, 2, ',', '.') }}</td>
+                                        <td>{{ $c->corretora }}</td>
+                                        <td
+                                            nome="{{ $item->ativo_info->sigla . ' - ' . $item->ativo_info->nome }}"
+                                            logo="{{ $item->ativo_info->logo }}"
+                                            idativo="{{ $item->id_ativo }}"
+                                            saldo="{{ number_format($c->saldo(), 2, ',', '.') }}"
+                                            valor="{{ number_format($c->valor_unitario, 2, ',', '.') }}"
+                                            quantidade="{{ $c->quantidade }}"
+                                            corretora="{{ $c->corretora }}"
+                                            data-compra="{{ $c->data_compra }}">
+
+                                            <a rota="{{ route('carteira.acao.compra.update', $c->id) }}"
+                                                onclick="abrirModalEditarCompra(this)" class="pointer"><i class="fas fa-pen"></i></a>
+
+                                            {{-- <a rota="{{ route('carteira.acao.compra.destroy', $c->id) }}"
+                                                onclick="abrirModalExcluirCompra(this)" class="pointer"><i class="fas fa-trash"></i></a> --}}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             <div class="col-md-9 p-3">
@@ -358,53 +402,53 @@
 @endsection
 
 @section('scripts')
-    <script src="{{ asset('js/home/abrirModal.js') }}"></script>
+    <script src="{{ asset('js/investimento/abrirModal.js') }}"></script>
 
     <script>
         $('.valor_unitario').mask('000.000.000,00', { reverse: true });
 
         $(document).ready(function() {
 
-            // axios.get(`{{ $consulta_empresa }}`)
-            // .then(function (response) {
+            axios.get(`{{ $consulta_empresa }}`)
+            .then(function (response) {
 
-            //     var summaryProfile = response.data.results[0].summaryProfile;
+                var summaryProfile = response.data.results[0].summaryProfile;
 
-            //     if (summaryProfile.website) {
-            //         var website = summaryProfile.website;
-            //     }else {
-            //         var website = "<span class='text-muted text-sm'>não encontrado</span>";
-            //     }
-            //     if (summaryProfile.country) {
-            //         var country = summaryProfile.country;
-            //     }else {
-            //         var country = "<span class='text-muted text-sm'>país não encontrado</span>";
-            //     }
-            //     if (summaryProfile.city) {
-            //         var city = summaryProfile.city;
-            //     }else {
-            //         var city = "<span class='text-muted text-sm'>cidade não encontrada</span>";
-            //     }
-            //     if (summaryProfile.state) {
-            //         var state = summaryProfile.state;
-            //     }else {
-            //         var state = "<span class='text-muted text-sm'>estado não encontrada</span>";
-            //     }
-            //     if (summaryProfile.longBusinessSummary) {
-            //         var longBusinessSummary = summaryProfile.longBusinessSummary;
-            //     }else {
-            //         var longBusinessSummary = "<span class='text-muted text-sm'>sem descrição</span>";
-            //     }
+                if (summaryProfile.website) {
+                    var website = summaryProfile.website;
+                }else {
+                    var website = "<span class='text-muted text-sm'>não encontrado</span>";
+                }
+                if (summaryProfile.country) {
+                    var country = summaryProfile.country;
+                }else {
+                    var country = "<span class='text-muted text-sm'>país não encontrado</span>";
+                }
+                if (summaryProfile.city) {
+                    var city = summaryProfile.city;
+                }else {
+                    var city = "<span class='text-muted text-sm'>cidade não encontrada</span>";
+                }
+                if (summaryProfile.state) {
+                    var state = summaryProfile.state;
+                }else {
+                    var state = "<span class='text-muted text-sm'>estado não encontrada</span>";
+                }
+                if (summaryProfile.longBusinessSummary) {
+                    var longBusinessSummary = summaryProfile.longBusinessSummary;
+                }else {
+                    var longBusinessSummary = "<span class='text-muted text-sm'>sem descrição</span>";
+                }
 
 
-            //     $("#website_empresa").append("Website: " + website);
-            //     $("#cidade_empresa").append(country + " - " + city + "/" + state);
-            //     $(".card-body-empresa").append(longBusinessSummary);
+                $("#website_empresa").append("Website: " + website);
+                $("#cidade_empresa").append(country + " - " + city + "/" + state);
+                $(".card-body-empresa").append(longBusinessSummary);
 
-            // })
-            // .catch(function (error) {
-            //     console.error(error);
-            // });
+            })
+            .catch(function (error) {
+                console.error(error);
+            });
 
             axios.get(`{{ $consulta_grafico_rendimento }}`)
             .then(function(response) {

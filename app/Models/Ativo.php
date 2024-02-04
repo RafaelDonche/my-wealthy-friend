@@ -32,4 +32,20 @@ class Ativo extends Model
     public function segmento() {
         return $this->hasOne(SegmentoAtivo::class, 'id', 'id_segmento');
     }
+
+    public function color_btn() {
+        $variacao = $this->ultimo_dia_historico()->variacao;
+
+        if (strval($variacao) > 0) {
+            return 'green';
+        }
+
+        if (strval($variacao) == 0) {
+            return 'black';
+        }
+
+        if (strval($variacao) < 0) {
+            return 'red';
+        }
+    }
 }

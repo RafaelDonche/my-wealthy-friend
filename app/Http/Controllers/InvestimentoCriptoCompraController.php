@@ -147,7 +147,10 @@ class InvestimentoCriptoCompraController extends Controller
                 return back()->with('erro', 'Acesso negado.');
             }
 
-            if (!AlterarValorCompra::validar($investimento->quantidadeAtual(), $request->quantidade, $compra->quantidade)) {
+            if (!AlterarValorCompra::validar(
+                $investimento->quantidadeAtual(),
+                str_replace(",", ".", str_replace(".", "", $request->quantidade)),
+                $compra->quantidade)) {
                 return back()->with('erro', 'Após a alteração, a quantidade de unidades do investimento não pode se menor que 0 (zero).');
             }
 

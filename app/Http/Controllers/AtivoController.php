@@ -8,78 +8,53 @@ use Illuminate\Http\Request;
 class AtivoController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Listagem de ações.
      */
-    public function index()
+    public function listagemAcao()
     {
-        //
+        try {
+
+            $items = Ativo::where('id_tipo', 1)->get();
+
+            return view('listagem.acoes.index', compact('items'));
+
+        } catch (\Exception $ex) {
+            return back()->with('erro', $ex->getMessage());
+            // return back()->with('erro', 'Erro contate o administrador.');
+        }
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Listagem de fundos imobiliários.
      */
-    public function create()
+    public function listagemFundo()
     {
-        //
+        try {
+
+            $items = Ativo::where('id_tipo', 2)->get();
+
+            return view('listagem.fundos.index', compact('items'));
+
+        } catch (\Exception $ex) {
+            return back()->with('erro', $ex->getMessage());
+            // return back()->with('erro', 'Erro contate o administrador.');
+        }
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * Listagem de criptomoedas.
      */
-    public function store(Request $request)
+    public function listagemCripto()
     {
-        //
-    }
+        try {
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Ativo  $ativo
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Ativo $ativo)
-    {
-        //
-    }
+            $items = Ativo::where('id_tipo', 3)->get();
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Ativo  $ativo
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Ativo $ativo)
-    {
-        //
-    }
+            return view('listagem.cripto.index', compact('items'));
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Ativo  $ativo
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Ativo $ativo)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Ativo  $ativo
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Ativo $ativo)
-    {
-        //
+        } catch (\Exception $ex) {
+            return back()->with('erro', $ex->getMessage());
+            // return back()->with('erro', 'Erro contate o administrador.');
+        }
     }
 }

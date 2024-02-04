@@ -15,10 +15,7 @@ class CreateTipoMetasTable extends Migration
     {
         Schema::create('tipo_metas', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('id_meta')->unsigned();
-            $table->foreign('id_meta')->references('id')->on('metas');
-            $table->integer('id_tipo')->unsigned();
-            $table->foreign('id_tipo')->references('id')->on('tipo_m_s');
+            $table->string('nome');
             $table->timestamps();
         });
     }
