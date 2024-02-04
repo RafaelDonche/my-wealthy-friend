@@ -14,7 +14,7 @@ class CreateHistoricoAtivosTable extends Migration
     public function up()
     {
         Schema::create('historico_ativos', function (Blueprint $table) {
-            $table->increments('id');
+            $table->bigIncrements('id');
             $table->date('data');
             $table->decimal('valor_fechamento', 20, 2);
             $table->decimal('variacao', 20, 2);

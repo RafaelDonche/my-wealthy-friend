@@ -3,6 +3,8 @@
 namespace App\Jobs;
 
 use App\Models\Ativo;
+use App\Models\AtivoEmpresa;
+use App\Models\AtivoProvento;
 use App\Models\HistoricoAtivo;
 use App\Models\SegmentoAtivo;
 use Carbon\Carbon;
@@ -36,6 +38,8 @@ class AtualizarAtivos implements ShouldQueue
     {
         try {
 
+            $hoje = Carbon::today();
+
             // atualizar ações e fiis
             $url = "https://brapi.dev/api/quote/list";
             $params = [
@@ -53,53 +57,138 @@ class AtualizarAtivos implements ShouldQueue
 
                 foreach ($stocks as $stock) {
 
-                    $segmento = SegmentoAtivo::where('nomeIngles', $stock['sector'])->first();
+                    $urlStock = "https://brapi.dev/api/quote/" . $stock['stock'];
+                    $paramsStock = [
+                        'fundamental' => 'true',
+                        'dividends' => 'true',
+                        'modules' => 'summaryProfile',
+                        'token' => env("MIX_API_BEARER_TOKEN")
+                    ];
 
-                    if (!$segmento) {
-                        $segmento = new SegmentoAtivo();
-                        $segmento->nome = $stock['sector'];
-                        $segmento->sigla = $stock['sector'];
-                        $segmento->save();
-                    }
+                    $queryStock = http_build_query($paramsStock);
+                    $fullUrlStock = $urlStock . '?' . $queryStock;
 
-                    $ativo = Ativo::where('sigla', $stock['stock'])->first();
+                    $responseStock = file_get_contents($fullUrlStock);
 
-                    if (!$ativo) {
-                        $ativo = new Ativo();
-                        $ativo->nome = $stock['name'];
-                        $ativo->sigla = $stock['stock'];
-                        $ativo->logo = $stock['logo'];
+                    if ($responseStock !== false) {
 
-                        if ($stock['type'] == "stock" || $stock['type'] == "bdr") {
-                            $ativo->id_tipo = 1;
+                        $dataStock = json_decode($responseStock, true);
+                        $result = $dataStock['results'];
+                        $resultStock = $result[0];
+                        $sumary = isset($resultStock['summaryProfile']) ? $resultStock['summaryProfile'] : [];
+                        $dividendsData = isset($resultStock['dividendsData']) ? $resultStock['dividendsData'] : [];
+                        $dividends = isset($dividendsData['cashDividends']) ? $dividendsData['cashDividends'] : ['cashDividends' => []];
+
+                        $segmento = SegmentoAtivo::where('nomeIngles', $stock['sector'])->first();
+
+                        if (!$segmento) {
+                            $segmento = new SegmentoAtivo();
+                            $segmento->nome = $stock['sector'];
+                            $segmento->sigla = $stock['sector'];
+                            $segmento->save();
                         }
 
-                        if ($stock['type'] == "fund") {
-                            $ativo->id_tipo = 2;
-                        }
+                        $ativo = Ativo::where('sigla', $stock['stock'])->first();
 
-                        $ativo->id_segmento = $segmento->id;
-                        $ativo->save();
+                        if (!$ativo) {
+                            $ativo = new Ativo();
+                            $ativo->nome = isset($stock['name']) ? $stock['name'] : null;
+                            $ativo->sigla = isset($stock['stock']) ? $stock['stock'] : null;
+                            $ativo->logo = isset($stock['logo']) ? $stock['logo'] : null;
 
-                        $historico_ativo = new HistoricoAtivo();
-                        $historico_ativo->data = Carbon::today();
-                        $historico_ativo->valor_fechamento = $stock['close'];
-                        $historico_ativo->variacao = $stock['change'];
-                        $historico_ativo->id_ativo = $ativo->id;
-                        $historico_ativo->save();
+                            if ($stock['type'] == "stock" || $stock['type'] == "bdr") {
+                                $ativo->id_tipo = 1;
+                            }else {
+                                if ($stock['type'] == "fund") {
+                                    $ativo->id_tipo = 2;
+                                }else {
+                                    $ativo->id_tipo = 1;
+                                }
+                            }
 
-                    }else {
-
-                        $tem_historico_ativo = HistoricoAtivo::where('data', Carbon::today())->where('id_ativo', $ativo->id)->first();
-
-                        if (!$tem_historico_ativo) {
+                            $ativo->id_segmento = $segmento->id;
+                            $ativo->save();
 
                             $historico_ativo = new HistoricoAtivo();
-                            $historico_ativo->data = Carbon::today();
-                            $historico_ativo->valor_fechamento = $stock['close'];
-                            $historico_ativo->variacao = $stock['change'];
+                            $historico_ativo->data = $hoje;
+                            $historico_ativo->valor_fechamento = isset($stock['close']) ? $stock['close'] : null;
+                            $historico_ativo->variacao = isset($stock['change']) ? $stock['change'] : null;
                             $historico_ativo->id_ativo = $ativo->id;
                             $historico_ativo->save();
+
+                            $empresa = new AtivoEmpresa();
+                            $empresa->pais = isset($sumary['country']) ? $sumary['country'] : null;
+                            $empresa->estado = isset($sumary['state']) ? $sumary['state'] : null;
+                            $empresa->cidade = isset($sumary['city']) ? $sumary['city'] : null;
+                            $empresa->endereco = isset($sumary['address1']) ? $sumary['address1'] : null;
+                            $empresa->cep = isset($sumary['zip']) ? $sumary['zip'] : null;
+                            $empresa->website = isset($sumary['website']) ? $sumary['website'] : null;
+                            $empresa->sumario = isset($sumary['longBusinessSummary']) ? $sumary['longBusinessSummary'] : null;
+                            $empresa->id_ativo = $ativo->id;
+                            $empresa->save();
+
+                            foreach ($dividends['cashDividends'] as $d) {
+                                $dataPagamento = Carbon::parse($d['paymentDate']);
+                                if ($dataPagamento >= $hoje) {
+
+                                    $provento = new AtivoProvento();
+                                    $provento->data_pagamento = isset($d['paymentDate']) ? $d['paymentDate'] : null;
+                                    $provento->data_com = isset($d['approvedOn']) ? $d['approvedOn'] : null;
+                                    $provento->label = isset($d['label']) ? $d['label'] : null;
+                                    $provento->valor = isset($d['rate']) ? $d['rate'] : null;
+                                    $provento->id_ativo = $ativo->id;
+                                    $provento->save();
+
+                                }
+                            }
+
+
+                        }else {
+
+                            $tem_historico_ativo = HistoricoAtivo::where('data', $hoje)->where('id_ativo', $ativo->id)->first();
+
+                            if (!$tem_historico_ativo) {
+
+                                $historico_ativo = new HistoricoAtivo();
+                                $historico_ativo->data = $hoje;
+                                $historico_ativo->valor_fechamento = isset($stock['close']) ? $stock['close'] : null;
+                                $historico_ativo->variacao = isset($stock['change']) ? $stock['change'] : null;
+                                $historico_ativo->id_ativo = $ativo->id;
+                                $historico_ativo->save();
+                            }
+
+                            $empresa = AtivoEmpresa::where('id_ativo', $ativo->id)->first();
+                            if (!$empresa) {
+                                $empresa = new AtivoEmpresa();
+                                $empresa->id_ativo = $ativo->id;
+                            }
+                            $empresa->pais = isset($sumary['country']) ? $sumary['country'] : null;
+                            $empresa->estado = isset($sumary['state']) ? $sumary['state'] : null;
+                            $empresa->cidade = isset($sumary['city']) ? $sumary['city'] : null;
+                            $empresa->endereco = isset($sumary['address1']) ? $sumary['address1'] : null;
+                            $empresa->cep = isset($sumary['zip']) ? $sumary['zip'] : null;
+                            $empresa->website = isset($sumary['website']) ? $sumary['website'] : null;
+                            $empresa->sumario = isset($sumary['longBusinessSummary']) ? $sumary['longBusinessSummary'] : null;
+                            $empresa->save();
+
+                            foreach ($dividends['cashDividends'] as $d) {
+
+                                $dataPagamento = Carbon::parse($d['paymentDate']);
+                                if ($dataPagamento >= $hoje) {
+
+                                    $tem_provento_ativo = AtivoProvento::where('data_pagamento', $dataPagamento)->where('id_ativo', $ativo->id)->first();
+
+                                    if (!$tem_provento_ativo) {
+                                        $provento = new AtivoProvento();
+                                        $provento->data_pagamento = isset($d['paymentDate']) ? $d['paymentDate'] : null;
+                                        $provento->data_com = isset($d['approvedOn']) ? $d['approvedOn'] : null;
+                                        $provento->label = isset($d['label']) ? $d['label'] : null;
+                                        $provento->valor = isset($d['rate']) ? $d['rate'] : null;
+                                        $provento->id_ativo = $ativo->id;
+                                        $provento->save();
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -150,7 +239,7 @@ class AtualizarAtivos implements ShouldQueue
                             $ativo->save();
 
                             $historico_ativo = new HistoricoAtivo();
-                            $historico_ativo->data = Carbon::today();
+                            $historico_ativo->data = $hoje;
                             $historico_ativo->valor_fechamento = $result['regularMarketPrice'];
                             $historico_ativo->variacao = $result['regularMarketChange'];
                             $historico_ativo->id_ativo = $ativo->id;
@@ -158,12 +247,12 @@ class AtualizarAtivos implements ShouldQueue
 
                         }else {
 
-                            $tem_historico_ativo = HistoricoAtivo::where('data', Carbon::today())->where('id_ativo', $ativo->id)->first();
+                            $tem_historico_ativo = HistoricoAtivo::where('data', $hoje)->where('id_ativo', $ativo->id)->first();
 
                             if (!$tem_historico_ativo) {
 
                                 $historico_ativo = new HistoricoAtivo();
-                                $historico_ativo->data = Carbon::today();
+                                $historico_ativo->data = $hoje;
                                 $historico_ativo->valor_fechamento = $result['regularMarketPrice'];
                                 $historico_ativo->variacao = $result['regularMarketChange'];
                                 $historico_ativo->id_ativo = $ativo->id;

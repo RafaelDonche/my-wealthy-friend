@@ -14,7 +14,16 @@ class CreateAtivoEmpresasTable extends Migration
     public function up()
     {
         Schema::create('ativo_empresas', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
+            $table->string('pais')->nullable();
+            $table->string('estado')->nullable();
+            $table->string('cidade')->nullable();
+            $table->string('endereco')->nullable();
+            $table->string('cep')->nullable();
+            $table->string('website')->nullable();
+            $table->text('sumario')->nullable();
+            $table->integer('id_ativo')->unsigned();
+            $table->foreign('id_ativo')->references('id')->on('ativos');
             $table->timestamps();
         });
     }

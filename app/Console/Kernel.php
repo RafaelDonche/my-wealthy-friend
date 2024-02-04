@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->everyMinute();
-        $schedule->job(new AtualizarAtivos)->daily()->onFailure(function() {
+        $schedule->job(new AtualizarAtivos)->everyTwoMinutes()->onFailure(function() {
             return AtualizarAtivos::dispatch()->delay(now()->addMinutes(10));
         });
     }
