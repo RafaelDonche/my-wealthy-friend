@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -18,6 +19,19 @@ class Ativo extends Model
 
     public function historico() {
         return $this->hasMany(HistoricoAtivo::class, 'id_ativo', 'id')->orderBy('id', 'desc');
+    }
+
+    public function empresa() {
+        return $this->hasOne(AtivoEmpresa::class, 'id_ativo', 'id');
+    }
+
+    public function proventos() {
+        return $this->hasMany(AtivoProvento::class, 'id_ativo', 'id')->orderByDesc('data_pagamento');
+    }
+
+    public function proximos_proventos() {
+        $hoje = Carbon::today()->isoFormat("YYYY-MM-DD");
+        return $this->hasMany(AtivoProvento::class, 'id_ativo', 'id')->where('data_pagamento', '>=', $hoje)->orderBy('data_pagamento');
     }
 
     public function ultimo_dia_historico() {

@@ -76,10 +76,6 @@
             color: rgb(105, 1, 1);
         }
 
-        .float-end {
-            float: right;
-        }
-
         .title-rendimentos {
             font-size: 20px;
             /* font-weight: bold; */
@@ -156,10 +152,10 @@
                         <div class="card-footer">
                             <p class="mb-1">
                                 Lucro realizado:
-                                @if ($item->diferencaCompraVenda() > 0)
+                                @if (strval($item->diferencaCompraVenda()) > 0)
                                     <span class="badge badge-success">
                                 @else
-                                    @if ($item->diferencaCompraVenda() == 0)
+                                    @if (strval($item->diferencaCompraVenda()) == 0)
                                         <span class="badge badge-secondary">
                                     @else
                                         <span class="badge badge-danger">
@@ -198,10 +194,10 @@
                             </p>
                             <p class="mb-1">
                                 Seu lucro é:
-                                @if ($item->saldoAtivo() > 0)
+                                @if (strval($item->saldoAtivo()) > 0)
                                     <span class="badge badge-success">
                                 @else
-                                    @if ($item->saldoAtivo() == 0)
+                                    @if (strval($item->saldoAtivo()) == 0)
                                         <span class="badge badge-secondary">
                                     @else
                                         <span class="badge badge-danger">
@@ -299,7 +295,7 @@
                                         @foreach ($item->compras as $c)
                                             <tr>
                                                 <td>{{ date('d/m/Y', strtotime($c->data_compra)) }}</td>
-                                                <td>{{ number_format($c->quantidade, 5, ',', '.') }}</td>
+                                                <td>{{ str_replace('.', ',', round($c->quantidade,5)) }}</td>
                                                 <td>R$ {{ number_format($c->valor_unitario, 2, ',', '.') }}</td>
                                                 <td>{{ $c->corretora }}</td>
                                                 <td
@@ -308,7 +304,7 @@
                                                     idativo="{{ $item->id_ativo }}"
                                                     saldo="{{ number_format($c->saldo(), 2, ',', '.') }}"
                                                     valor="{{ number_format($c->valor_unitario, 2, ',', '.') }}"
-                                                    quantidade="{{ number_format($c->quantidade, 5, ',', '.') }}"
+                                                    quantidade="{{ str_replace('.', ',', round($c->quantidade,5)) }}"
                                                     corretora="{{ $c->corretora }}"
                                                     data-compra="{{ $c->data_compra }}">
 
@@ -345,7 +341,7 @@
                                         @foreach ($item->vendas as $v)
                                             <tr>
                                                 <td>{{ date('d/m/Y', strtotime($v->data_venda)) }}</td>
-                                                <td>{{ number_format($v->quantidade,5, ',', '.') }}</td>
+                                                <td>{{ str_replace('.', ',', round($v->quantidade,5)) }}</td>
                                                 <td>R$ {{ number_format($v->valor_unitario, 2, ',', '.') }}</td>
                                                 <td>{{ $v->corretora }}</td>
                                                 <td
@@ -354,7 +350,7 @@
                                                     idativo="{{ $item->id_ativo }}"
                                                     saldo="{{ number_format($v->saldo(), 2, ',', '.') }}"
                                                     valor="{{ number_format($v->valor_unitario, 2, ',', '.') }}"
-                                                    quantidade="{{ number_format($v->quantidade, 5, ',', '.') }}"
+                                                    quantidade="{{ str_replace('.', ',', round($v->quantidade,5)) }}"
                                                     corretora="{{ $v->corretora }}"
                                                     data-venda="{{ $v->data_venda }}">
 

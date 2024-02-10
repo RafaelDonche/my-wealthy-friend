@@ -75,13 +75,14 @@
             color: rgb(105, 1, 1);
         }
 
-        .float-end {
-            float: right;
-        }
-
         .title-rendimentos {
             font-size: 20px;
             /* font-weight: bold; */
+        }
+
+        .card-header-secondary {
+            background-color: rgb(104, 104, 104);
+            color: white;
         }
 
         .card-header-compras {
@@ -110,6 +111,16 @@
 
         .text-sm {
             font-size: 13px;
+        }
+
+        /* Estilo para a paginação */
+        .dataTables_paginate {
+            font-size: 14px; /* Ajuste o tamanho da fonte conforme necessário */
+        }
+
+        /* Estilo para os botões de paginação (se necessário) */
+        .dataTables_paginate .paginate_button {
+            font-size: 14px; /* Ajuste o tamanho da fonte conforme necessário */
         }
     </style>
 
@@ -204,53 +215,38 @@
                         </div>
                     </div>
                 </div>
-                <div class="card card-empresa p-2">
+                <div class="card card-empresa p-2 mb-3">
                     <div class="card-header-empresa">
                         <p class="sigla mb-2 text-center">{{ $item->ativo_info->nome }}</p>
                         <p class="texto-empresa mb-2 text-left">Setor: {{ $item->ativo_info->id_segmento != null ? $item->ativo_info->segmento->nome : "" }}</p>
-                        <p class="texto-empresa mb-2 text-left" id="website_empresa"></p>
-                        <p class="texto-empresa mb-2 text-left" id="cidade_empresa"></p>
+                        <p class="texto-empresa mb-2 text-left" id="website_empresa">{{ isset($item->ativo_info->empresa) ? $item->ativo_info->empresa->website : "" }}</p>
+                        <p class="texto-empresa mb-2 text-left" id="cidade_empresa">{{ isset($item->ativo_info->empresa) ? $item->ativo_info->empresa->lugar() : "" }}</p>
                     </div>
-                    <div class="card-body card-body-empresa"></div>
+                    <div class="card-body card-body-empresa">
+                        {{ isset($item->ativo_info->empresa) ? $item->ativo_info->empresa->sumario : "" }}
+                    </div>
                 </div>
-                <div class="card p-2">
-                    <div class="card-header card-header-compras">
+                <div class="card">
+                    <div class="card-header card-header-secondary">
                         <h5 class="card-title mb-0">Proventos</h5>
                     </div>
                     <div class="card-body">
-                        <table class="table table-striped myDataTable my-0">
+                        <table class="table table-striped proventosTable my-0">
                             <thead>
                                 <tr>
-                                    <th>Data da compra</th>
-                                    <th>Quantidade</th>
-                                    <th>Valor unitário</th>
-                                    <th>Corretora</th>
-                                    <th>Ações</th>
+                                    <th>Valor</th>
+                                    <th>Data Com</th>
+                                    <th>Tipo</th>
+                                    <th>Data de pagamento</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($item->compras as $c)
+                                @foreach ($item->ativo_info->proximos_proventos as $p)
                                     <tr>
-                                        <td>{{ date('d/m/Y', strtotime($c->data_compra)) }}</td>
-                                        <td>{{ $c->quantidade }}</td>
-                                        <td>R$ {{ number_format($c->valor_unitario, 2, ',', '.') }}</td>
-                                        <td>{{ $c->corretora }}</td>
-                                        <td
-                                            nome="{{ $item->ativo_info->sigla . ' - ' . $item->ativo_info->nome }}"
-                                            logo="{{ $item->ativo_info->logo }}"
-                                            idativo="{{ $item->id_ativo }}"
-                                            saldo="{{ number_format($c->saldo(), 2, ',', '.') }}"
-                                            valor="{{ number_format($c->valor_unitario, 2, ',', '.') }}"
-                                            quantidade="{{ $c->quantidade }}"
-                                            corretora="{{ $c->corretora }}"
-                                            data-compra="{{ $c->data_compra }}">
-
-                                            <a rota="{{ route('carteira.acao.compra.update', $c->id) }}"
-                                                onclick="abrirModalEditarCompra(this)" class="pointer"><i class="fas fa-pen"></i></a>
-
-                                            {{-- <a rota="{{ route('carteira.acao.compra.destroy', $c->id) }}"
-                                                onclick="abrirModalExcluirCompra(this)" class="pointer"><i class="fas fa-trash"></i></a> --}}
-                                        </td>
+                                        <td>R$ {{ number_format($p->valor, 2, ',', '.') }}</td>
+                                        <td>{{ date('d/m/Y', strtotime($p->data_com)) }}</td>
+                                        <td>{{ $p->label }}</td>
+                                        <td>{{ date('d/m/Y', strtotime($p->data_pagamento)) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -409,47 +405,6 @@
 
         $(document).ready(function() {
 
-            axios.get(`{{ $consulta_empresa }}`)
-            .then(function (response) {
-
-                var summaryProfile = response.data.results[0].summaryProfile;
-
-                if (summaryProfile.website) {
-                    var website = summaryProfile.website;
-                }else {
-                    var website = "<span class='text-muted text-sm'>não encontrado</span>";
-                }
-                if (summaryProfile.country) {
-                    var country = summaryProfile.country;
-                }else {
-                    var country = "<span class='text-muted text-sm'>país não encontrado</span>";
-                }
-                if (summaryProfile.city) {
-                    var city = summaryProfile.city;
-                }else {
-                    var city = "<span class='text-muted text-sm'>cidade não encontrada</span>";
-                }
-                if (summaryProfile.state) {
-                    var state = summaryProfile.state;
-                }else {
-                    var state = "<span class='text-muted text-sm'>estado não encontrada</span>";
-                }
-                if (summaryProfile.longBusinessSummary) {
-                    var longBusinessSummary = summaryProfile.longBusinessSummary;
-                }else {
-                    var longBusinessSummary = "<span class='text-muted text-sm'>sem descrição</span>";
-                }
-
-
-                $("#website_empresa").append("Website: " + website);
-                $("#cidade_empresa").append(country + " - " + city + "/" + state);
-                $(".card-body-empresa").append(longBusinessSummary);
-
-            })
-            .catch(function (error) {
-                console.error(error);
-            });
-
             axios.get(`{{ $consulta_grafico_rendimento }}`)
             .then(function(response) {
 
@@ -558,6 +513,51 @@
                 order: [
                     [0, "asc"]
                 ],
+                info: false,
+                pageLength: 6,
+                lengthChange: false,
+                bFilter: false,
+                autoWidth: false,
+                oLanguage: {
+                    // sLengthMenu: "Mostrar _MENU_ registros por página",
+                    sZeroRecords: "Nenhum registro encontrado",
+                    sInfo: "Mostrando _START_ / _END_ de _TOTAL_ registro(s)",
+                    sInfoEmpty: "Mostrando 0 / 0 de 0 registros",
+                    sInfoFiltered: "(filtrado de _MAX_ registros)",
+                    sSearch: "Pesquisar: ",
+                    oPaginate: {
+                        sFirst: "Início",
+                        sPrevious: "Anterior",
+                        sNext: "Próximo",
+                        sLast: "Último"
+                    }
+                },
+            });
+
+            $('.proventosTable').DataTable({
+                responsive: true,
+                columnDefs: [
+                    {
+                        responsivePriority: 0,
+                        orderable: false,
+                        targets: 0
+                    },
+                    {
+                        orderable: false,
+                        targets: 1
+                    },
+                    {
+                        orderable: false,
+                        targets: 2
+                    },
+                    {
+                        responsivePriority: 1,
+                        orderable: false,
+                        targets: 3
+                    }
+                ],
+                info: false,
+                order: false,
                 pageLength: 6,
                 lengthChange: false,
                 bFilter: false,

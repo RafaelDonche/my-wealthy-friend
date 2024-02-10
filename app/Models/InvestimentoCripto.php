@@ -85,26 +85,26 @@ class InvestimentoCripto extends Model
     // quantiade atual * ultimo valor de fechamento do ativo
     public function valorAtual() {
         $valor_ativo = $this->ativo_info->ultimo_dia_historico()->valor_fechamento;
-        return $valor_ativo * $this->quantidadeAtual();
+        return strval($valor_ativo) * strval($this->quantidadeAtual());
     }
 
     public function diferencaCompraVenda() {
 
-        if ($this->quantidadeVendida() == 0) {
+        if (strval($this->quantidadeVendida()) == 0) {
             return 0;
         }
 
-        return $this->saldoVendas() - $this->saldoCompras();
+        return strval($this->saldoVendas()) - strval($this->saldoCompras());
     }
 
     // preço médio das compras = total do saldo das compras / total quantidade das compras
     public function precoMediaCompras() {
-        return $this->saldoCompras() / $this->quantidadeComprada();
+        return strval($this->saldoCompras()) / strval($this->quantidadeComprada());
     }
 
     // valor da quantidade atual * o preço médio
     public function valorAtualInvestido() {
-        return $this->precoMediaCompras() * $this->quantidadeAtual();
+        return strval($this->precoMediaCompras()) * strval($this->quantidadeAtual());
     }
 
     // lucro atual = (quantidade * cotação) - (quantidade * valor médio)
@@ -115,6 +115,6 @@ class InvestimentoCripto extends Model
             return 0;
         }
 
-        return $this->valorAtual() - $this->valorAtualInvestido();
+        return strval($this->valorAtual()) - strval($this->valorAtualInvestido());
     }
 }

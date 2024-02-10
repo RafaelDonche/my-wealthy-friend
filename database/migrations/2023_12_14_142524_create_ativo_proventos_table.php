@@ -16,8 +16,8 @@ class CreateAtivoProventosTable extends Migration
         Schema::create('ativo_proventos', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->decimal('valor', 20, 2);
-            $table->string('data_pagamento');
-            $table->string('data_com');
+            $table->date('data_pagamento');
+            $table->date('data_com');
             $table->string('label');
             $table->integer('id_ativo')->unsigned();
             $table->foreign('id_ativo')->references('id')->on('ativos');

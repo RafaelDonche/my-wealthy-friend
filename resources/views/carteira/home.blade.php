@@ -4,10 +4,6 @@
 
     <style>
 
-        .float-end {
-            float: right;
-        }
-
         .nav-tabs .nav-link {
             color: black;
         }

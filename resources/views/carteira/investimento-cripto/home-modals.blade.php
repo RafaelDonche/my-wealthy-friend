@@ -1,15 +1,3 @@
-
-<style>
-
-    .modal-header-secondary {
-        background-color: rgba(134, 134, 134, 0.425);
-    }
-
-    .modal-header-danger {
-        background-color: rgba(131, 0, 0, 0.425);
-    }
-</style>
-
 <!-- Modal = comprarAtivo -->
 <div class="modal fade" id="comprarAtivo" tabindex="-1" role="dialog"
     aria-hidden="true">

@@ -16,6 +16,7 @@ use App\Http\Controllers\InvestimentoFundoCompraController;
 use App\Http\Controllers\InvestimentoFundoController;
 use App\Http\Controllers\InvestimentoFundoVendaController;
 use App\Http\Controllers\MetaController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -50,6 +51,12 @@ Route::post('/link-encaminhado', [ConfirmacaoEmailController::class, 'linkEncami
 Route::get('/confirmacao-email/{id}', [ConfirmacaoEmailController::class, 'confirmacaoEmail'])->name('confirmacao_email');
 
 Route::group(['middleware' => 'auth'], function () {
+
+    // Usuario
+    Route::group(['prefix' => '/user', 'as' => 'user.'], function() {
+        Route::post('/update', [UserController::class, 'update'])->name('update');
+    });
+
 
     // Listagem
     Route::group(['prefix' => '/listagem', 'as' => 'listagem.'], function() {

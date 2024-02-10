@@ -19,4 +19,17 @@ class AtivoEmpresa extends Model
     public function ativo() {
         return $this->hasOne(Ativo::class, 'id', 'id_ativo');
     }
+
+    public function lugar() {
+        if (isset($this->pais) && isset($this->estado) && isset($this->cidade)) {
+            return $this->pais . " - " . $this->estado . "/" . $this->cidade;
+        }
+        if (isset($this->pais) && isset($this->estado)) {
+            return $this->pais . " - " . $this->estado;
+        }
+        if (isset($this->pais)) {
+            return $this->pais;
+        }
+        return "";
+    }
 }

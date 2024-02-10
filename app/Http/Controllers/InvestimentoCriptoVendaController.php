@@ -149,7 +149,10 @@ class InvestimentoCriptoVendaController extends Controller
                 return back()->with('erro', 'O investimento não foi encontrado.');
             }
 
-            if (!AlterarValorVenda::validar($venda->investimento->quantidadeAtual(), $request->quantidade, $venda->quantidade)) {
+            if (!AlterarValorVenda::validar(
+                $venda->investimento->quantidadeAtual(),
+                str_replace(",", ".", str_replace(".", "", $request->quantidade)),
+                $venda->quantidade)) {
                 return back()->with('erro', 'Após a alteração, a quantidade de unidades do investimento não pode se menor que 0 (zero).');
             }
 
