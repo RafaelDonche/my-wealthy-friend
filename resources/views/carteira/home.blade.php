@@ -292,7 +292,7 @@
                                                         R$ {{ number_format($c->valorAtual(), 2, ',', '.') }}
                                                     </span>
                                                 </p>
-                                                <p class="m-0">Quantidade: {{ $c->quantidadeAtual() }}</p>
+                                                <p class="m-0">Quantidade: {{ str_replace('.', ',', round($c->quantidadeAtual(), 5)) }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -550,7 +550,7 @@
                                                         R$ {{ number_format($c->valorAtual(), 2, ',', '.') }}
                                                     </span>
                                                 </p>
-                                                <p class="m-0">Quantidade: {{ $c->quantidadeAtual() }}</p>
+                                                <p class="m-0">Quantidade: {{ str_replace('.', ',', round($c->quantidadeAtual(), 5)) }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -734,6 +734,7 @@
 
     <script>
         $('.valor_unitario').mask('000.000.000,00', { reverse: true });
+        $('.qnt-cripto-mask').mask('000000,00000', { reverse: true });
 
         function dynamicColors() {
             var r = Math.floor(10 + Math.random() * 245);

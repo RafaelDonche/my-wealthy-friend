@@ -170,8 +170,8 @@
                         </div>
                         <div class="col-md-6 mb-2">
                             <label class="form-label" for="quantidade_cripto">Quantas foram compradas?</label>
-                            <input type="text" class="form-control" name="quantidade_cripto"
-                                id="quantidade_cripto" placeholder="quantidade até 5 casas decimais" required>
+                            <input type="text" class="form-control qnt-cripto-mask" name="quantidade_cripto"
+                                id="quantidade_cripto" placeholder="até 5 casas decimais, ex: 0,00005" required>
                         </div>
                     </div>
                 </div>

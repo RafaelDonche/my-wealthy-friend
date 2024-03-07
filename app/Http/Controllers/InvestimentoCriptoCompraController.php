@@ -40,6 +40,11 @@ class InvestimentoCriptoCompraController extends Controller
     public function store(Request $request, $id_investimento)
     {
         try {
+            // a quantidade não pode ter '.' no seu valor
+            if (str_contains($request->quantidade, '.')) {
+                return back()->with('erro', 'A quantidade de criptomoedas inserida deve respeitar o formato decimal brasileiro "...0,00000" .');
+            }
+
             $input = [
                 'corretora' => $request->corretora,
                 'data de compra' => $request->data_compra,
@@ -50,7 +55,7 @@ class InvestimentoCriptoCompraController extends Controller
                 'corretora' => 'max:250',
                 'data de compra' => 'required|date',
                 'valor unitário' => 'required|numeric|min:0.01',
-                'quantidade' => 'required|numeric|min:1|regex:/^\d{1,15}(\.\d{0,5})?$/'
+                'quantidade' => 'required|numeric|min:0.00001|regex:/^\d{1,15}(\.\d{0,5})?$/'
             ];
             $messages = [
                 'quantidade.regex' => "A 'quantidade' no cadastro da criptomoeda deve ter no máximo 15 dígitos a esquerda da vírgula e no máximo 5 a direita!"
@@ -117,6 +122,11 @@ class InvestimentoCriptoCompraController extends Controller
     public function update(Request $request, $id)
     {
         try {
+            // a quantidade não pode ter '.' no seu valor
+            if (str_contains($request->quantidade, '.')) {
+                return back()->with('erro', 'A quantidade de criptomoedas inserida deve respeitar o formato decimal brasileiro "...0,00000" .');
+            }
+
             $input = [
                 'corretora' => $request->corretora,
                 'data de compra' => $request->data_compra,
@@ -127,7 +137,7 @@ class InvestimentoCriptoCompraController extends Controller
                 'corretora' => 'max:250',
                 'data de compra' => 'required|date',
                 'valor unitário' => 'required|numeric|min:0.01',
-                'quantidade' => 'required|numeric|min:1|regex:/^\d{1,15}(\.\d{0,5})?$/'
+                'quantidade' => 'required|numeric|min:0.00001|regex:/^\d{1,15}(\.\d{0,5})?$/'
             ];
             $messages = [
                 'quantidade.regex' => "A 'quantidade' no cadastro da criptomoeda deve ter no máximo 15 dígitos a esquerda da vírgula e no máximo 5 a direita!"

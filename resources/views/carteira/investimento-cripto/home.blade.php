@@ -134,7 +134,7 @@
                                         Data de cadastro:
                                         {{ date('d/m/Y', strtotime($item->created_at)) }}
                                     </p>
-                                    <p class="mb-1">Você possui: {{ $item->quantidadeAtual() }} unidades</p>
+                                    <p class="mb-1">Você possui: {{ str_replace('.', ',', round($item->quantidadeAtual(), 5)) }} unidades</p>
                                     <p class="mb-1">
                                         Cotação atual:
                                         R$ {{ number_format($item->ativo_info->ultimo_dia_historico()->valor_fechamento, 2, ',', '.') }}
@@ -381,6 +381,7 @@
 
     <script>
         $('.valor_unitario').mask('000.000.000,00', { reverse: true });
+        $('.qnt-cripto-mask').mask('000000,00000', { reverse: true });
 
         $(document).ready(function() {
 

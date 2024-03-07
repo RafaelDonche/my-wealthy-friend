@@ -35,8 +35,8 @@
                     </div>
                     <div class="col-md-6 mb-2">
                         <label class="form-label" for="quantidade">Quantidade comprada</label>
-                        <input class="form-control" name="quantidade" id="quantidade_comprar"
-                            placeholder="quantidade"
+                        <input class="form-control qnt-cripto-mask" name="quantidade" id="quantidade_comprar"
+                            placeholder="até 5 casas decimais, ex: 0,00005"
                             type="text"
                             required>
                     </div>
@@ -88,8 +88,8 @@
                     </div>
                     <div class="col-md-6 mb-2">
                         <label class="form-label" for="quantidade">Quantidade vendida</label>
-                        <input class="form-control" name="quantidade" id="quantidade_vender"
-                            placeholder="quantidade"
+                        <input class="form-control qnt-cripto-mask" name="quantidade" id="quantidade_vender"
+                            placeholder="até 5 casas decimais, ex: 0,00005"
                             type="text"
                             required>
                     </div>
